@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>并发工具类Exchanger | H14ugust&#39;s Blog</title>
+  
+  
+  
+  <!--link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github-gist.min.css"-->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github-gist.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+<div class="Shell">
+    <aside class='SideBar'>
+    <section class='avatar' style="background-image: url()">
+        <div class='av-pic' style="background-image: url()">
+        </div>
+    </section>
+    <section class='menu'>
+        <div>H14ugust&#39;s Blog</div>
+        
+        <ul>
+          
+            <a href="/" class="Btn">
+              <li>Home</li>
+            </a>  
+          
+            <a href="/archives/" class="Btn">
+              <li>Archive</li>
+            </a>  
+          
+            <a href="/tags/" class="Btn">
+              <li>Tags</li>
+            </a>  
+          
+            <a href="/categories/" class="Btn">
+              <li>Categories</li>
+            </a>  
+          
+            <a href="/about/" class="Btn">
+              <li>About</li>
+            </a>  
+          
+        </ul>
+    </section>
+    <section class="media">
+        
+    </section>
+</aside>
+
+    <div class="container">
+        <div data-pager-shell>
+            <div>
+  <article class='ContentView'>
+    <header class='PageTitle'>
+        <h1>并发工具类Exchanger</h1>
+    </header>
+
+    <section>
+      <h1 id="并发工具类Exchanger"><a href="#并发工具类Exchanger" class="headerlink" title="并发工具类Exchanger"></a>并发工具类Exchanger</h1><h2 id="1-Exchanger"><a href="#1-Exchanger" class="headerlink" title="1.Exchanger"></a>1.Exchanger</h2><ul>
+<li>线程可以在成对内配对和交换元素的同步点。 每个线程在输入<code>exchange</code>方法时提供一些对象，与合作者线程匹配，并在返回时接收其合作伙伴的对象。 交换器可以被视为一个的双向形式<code>SynchronousQueue</code>。 交换器在诸如遗传算法和管道设计的应用中可能是有用的。</li>
+<li>内存一致性效果：对于每对线程，其经成功交换对象<code>Exchanger</code> ，现有的行动<code>exchange()</code>中的每个线程<em>happen-before</em>那些从相应的返回后续<code>exchange()</code>中的其他线程。</li>
+</ul>
+<a id="more"></a>
+<h2 id="2-构造方法"><a href="#2-构造方法" class="headerlink" title="2.构造方法"></a>2.构造方法</h2><table>
+<thead>
+<tr>
+<th>Constructor and Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Exchanger()</code>创建一个新的交换器。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-方法"><a href="#3-方法" class="headerlink" title="3.方法"></a>3.方法</h2><table>
+<thead>
+<tr>
+<th>Modifier and Type</th>
+<th>Method and Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>V</code></td>
+<td><code>exchange(V x)</code>等待另一个线程到达此交换点（除非当前线程为 interrupted ），然后将给定对象传输给它，接收其对象作为回报。</td>
+</tr>
+<tr>
+<td><code>V</code></td>
+<td><code>exchange(V x, long timeout, TimeUnit unit)</code>等待另一个线程到达此交换点（除非当前线程为 interrupted或指定的等待时间已过），然后将给定对象传输给它，接收其对象作为回报。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-示例"><a href="#4-示例" class="headerlink" title="4.示例"></a>4.示例</h2><p>两个线程交换数据</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.Exchanger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ExchangerTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">a</span><span class="params">(Exchanger&lt;String&gt; exchanger)</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"a方法执行...."</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        String res = <span class="string">"654312"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          String value = exchanger.exchange(res);</span><br><span class="line">          System.out.println(<span class="string">"a方法获得值 "</span>+value);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">b</span><span class="params">(Exchanger&lt;String&gt; exchanger)</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"b方法执行...."</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">4000</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        String res = <span class="string">"123456"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            String value = exchanger.exchange(res);</span><br><span class="line">            System.out.println(<span class="string">"b方法获得值 "</span>+value);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        ExchangerTest test = <span class="keyword">new</span> ExchangerTest();</span><br><span class="line">        Exchanger&lt;String&gt; exchanger = <span class="keyword">new</span> Exchanger&lt;&gt;();</span><br><span class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                test.a(exchanger);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                test.b(exchanger);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* *</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * b方法执行....</span></span><br><span class="line"><span class="comment"> * a方法执行....</span></span><br><span class="line"><span class="comment"> * b方法获得值 654312</span></span><br><span class="line"><span class="comment"> * a方法获得值 123456</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * */</span></span><br></pre></td></tr></table></figure>
+<p>生产者-消费者模型</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Exchanger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ExchangerTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Producer</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//生产者、消费者交换的数据结构</span></span><br><span class="line">        <span class="keyword">private</span> List&lt;String&gt; buffer;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//步生产者和消费者的交换对象</span></span><br><span class="line">        <span class="keyword">private</span> Exchanger&lt;List&lt;String&gt;&gt; exchanger;</span><br><span class="line"></span><br><span class="line">        Producer(List&lt;String&gt; buffer,Exchanger&lt;List&lt;String&gt;&gt; exchanger)&#123;</span><br><span class="line">            <span class="keyword">this</span>.buffer = buffer;</span><br><span class="line">            <span class="keyword">this</span>.exchanger = exchanger;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span> ; i &lt; <span class="number">5</span> ; i++)&#123;</span><br><span class="line">                System.out.println(<span class="string">"生产者第"</span> + i + <span class="string">"次提供"</span>);</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span> ; j &lt;= <span class="number">3</span> ; j++)&#123;</span><br><span class="line">                    System.out.println(<span class="string">"生产者装入"</span> + i  + <span class="string">"--"</span> + j);</span><br><span class="line">                    buffer.add(<span class="string">"buffer："</span> + i + <span class="string">"--"</span> + j);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                System.out.println(<span class="string">"生产者装满，等待与消费者交换..."</span>);</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    exchanger.exchange(buffer);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Consumer</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> List&lt;String&gt; buffer;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> Exchanger&lt;List&lt;String&gt;&gt; exchanger;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Consumer</span><span class="params">(List&lt;String&gt; buffer, Exchanger&lt;List&lt;String&gt;&gt; exchanger)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.buffer = buffer;</span><br><span class="line">            <span class="keyword">this</span>.exchanger = exchanger;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">                <span class="comment">//调用exchange()与消费者进行数据交换</span></span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    buffer = exchanger.exchange(buffer);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                System.out.println(<span class="string">"消费者第"</span> + i + <span class="string">"次提取"</span>);</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= <span class="number">3</span> ; j++) &#123;</span><br><span class="line">                    System.out.println(<span class="string">"消费者 : "</span> + buffer.get(<span class="number">0</span>));</span><br><span class="line">                    buffer.remove(<span class="number">0</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        List&lt;String&gt; buffer1 = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line">        List&lt;String&gt; buffer2 = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line"></span><br><span class="line">        Exchanger&lt;List&lt;String&gt;&gt; exchanger = <span class="keyword">new</span> Exchanger&lt;List&lt;String&gt;&gt;();</span><br><span class="line"></span><br><span class="line">        Thread producerThread = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Producer(buffer1,exchanger));</span><br><span class="line">        Thread consumerThread = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Consumer(buffer2,exchanger));</span><br><span class="line"></span><br><span class="line">        producerThread.start();</span><br><span class="line">        consumerThread.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* *</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 生产者第1次提供</span></span><br><span class="line"><span class="comment"> * 生产者装入1--1</span></span><br><span class="line"><span class="comment"> * 生产者装入1--2</span></span><br><span class="line"><span class="comment"> * 生产者装入1--3</span></span><br><span class="line"><span class="comment"> * 生产者装满，等待与消费者交换...</span></span><br><span class="line"><span class="comment"> * 生产者第2次提供</span></span><br><span class="line"><span class="comment"> * 生产者装入2--1</span></span><br><span class="line"><span class="comment"> * 生产者装入2--2</span></span><br><span class="line"><span class="comment"> * 生产者装入2--3</span></span><br><span class="line"><span class="comment"> * 消费者第1次提取</span></span><br><span class="line"><span class="comment"> * 生产者装满，等待与消费者交换...</span></span><br><span class="line"><span class="comment"> * 消费者 : buffer：1--1</span></span><br><span class="line"><span class="comment"> * 消费者 : buffer：1--2</span></span><br><span class="line"><span class="comment"> * 消费者 : buffer：1--3</span></span><br><span class="line"><span class="comment"> * 消费者第2次提取</span></span><br><span class="line"><span class="comment"> * 消费者 : buffer：2--1</span></span><br><span class="line"><span class="comment"> * 消费者 : buffer：2--2</span></span><br><span class="line"><span class="comment"> * 生产者第3次提供</span></span><br><span class="line"><span class="comment"> * 消费者 : buffer：2--3</span></span><br><span class="line"><span class="comment"> * 生产者装入3--1</span></span><br><span class="line"><span class="comment"> * 生产者装入3--2</span></span><br><span class="line"><span class="comment"> * 生产者装入3--3</span></span><br><span class="line"><span class="comment"> * 生产者装满，等待与消费者交换...</span></span><br><span class="line"><span class="comment"> * 生产者第4次提供</span></span><br><span class="line"><span class="comment"> * 消费者第3次提取</span></span><br><span class="line"><span class="comment"> * 消费者 : buffer：3--1</span></span><br><span class="line"><span class="comment"> * 生产者装入4--1</span></span><br><span class="line"><span class="comment"> * 消费者 : buffer：3--2</span></span><br><span class="line"><span class="comment"> * 生产者装入4--2</span></span><br><span class="line"><span class="comment"> * 消费者 : buffer：3--3</span></span><br><span class="line"><span class="comment"> * 生产者装入4--3</span></span><br><span class="line"><span class="comment"> * 生产者装满，等待与消费者交换...</span></span><br><span class="line"><span class="comment"> * 消费者第4次提取</span></span><br><span class="line"><span class="comment"> * 消费者 : buffer：4--1</span></span><br><span class="line"><span class="comment"> * 消费者 : buffer：4--2</span></span><br><span class="line"><span class="comment"> * 消费者 : buffer：4--3</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * */</span></span><br></pre></td></tr></table></figure>
+
+
+      
+
+    </section>
+    
+      <section class='ArticleMeta'>
+          <div>
+            发布于&nbsp;
+            <time datetime="2019-06-13T14:57:51.000Z" itemprop="datePublished">
+              2019-06-13
+            </time>
+          </div>
+          
+            <div>
+              tags: 
+  <li class="meta-text">
+  { <a href="/tags/Java/">Java</a> }
+  </li>
+
+
+            </div>
+          
+      </section>
+    
+    
+</article>
+
+  
+</div>
+
+            <footer>
+    <div>© 2019 - H14ugust </div>
+    <div>
+        <span>
+            Powered by <a href="https://hexo.io">Hexo</a>
+        </span>
+        ,
+        <span>
+            Theme - <a href="https://github.com/nameoverflow/hexo-theme-icalm">Icalm</a>
+        </span>
+    </div>
+</footer>
+
+        </div>
+    </div>
+</div>
+<script src="/js/pager/dist/singlepager.js"></script>
+<script>
+var sp = new Pager('data-pager-shell')
+
+</script>
+</body>
+</html>

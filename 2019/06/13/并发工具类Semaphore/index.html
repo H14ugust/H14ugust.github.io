@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>并发工具类Semaphore | H14ugust&#39;s Blog</title>
+  
+  
+  
+  <!--link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github-gist.min.css"-->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github-gist.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+<div class="Shell">
+    <aside class='SideBar'>
+    <section class='avatar' style="background-image: url()">
+        <div class='av-pic' style="background-image: url()">
+        </div>
+    </section>
+    <section class='menu'>
+        <div>H14ugust&#39;s Blog</div>
+        
+        <ul>
+          
+            <a href="/" class="Btn">
+              <li>Home</li>
+            </a>  
+          
+            <a href="/archives/" class="Btn">
+              <li>Archive</li>
+            </a>  
+          
+            <a href="/tags/" class="Btn">
+              <li>Tags</li>
+            </a>  
+          
+            <a href="/categories/" class="Btn">
+              <li>Categories</li>
+            </a>  
+          
+            <a href="/about/" class="Btn">
+              <li>About</li>
+            </a>  
+          
+        </ul>
+    </section>
+    <section class="media">
+        
+    </section>
+</aside>
+
+    <div class="container">
+        <div data-pager-shell>
+            <div>
+  <article class='ContentView'>
+    <header class='PageTitle'>
+        <h1>并发工具类Semaphore</h1>
+    </header>
+
+    <section>
+      <h1 id="并发工具类Semaphore"><a href="#并发工具类Semaphore" class="headerlink" title="并发工具类Semaphore"></a>并发工具类Semaphore</h1><h2 id="1-Semaphore-信号量"><a href="#1-Semaphore-信号量" class="headerlink" title="1. Semaphore-信号量"></a>1. Semaphore-信号量</h2><ul>
+<li>一个计数信号量。 在概念上，信号量维持一组许可证。 如果有必要，每个<code>acquire()</code>都会阻塞，直到许可证可用，然后才能使用它。 每个<code>release()</code>添加许可证，潜在地释放阻塞获取方。 但是，没有使用实际的许可证对象; <code>Semaphore</code>只保留可用数量的计数，并相应地执行。</li>
+<li>信号量通常用于限制线程数，而不是访问某些（物理或逻辑）资源</li>
+<li>信号量被初始化为一个，并且被使用，使得它只有至多一个允许可用，可以用作互斥锁。 这通常被称为<em>二进制信号量</em> ，因为它只有两个状态：一个许可证可用，或零个许可证可用。 当以这种方式使用时，二进制信号量具有属性（与许多<code>Lock</code>实现不同），“锁”可以由除所有者之外的线程释放（因为信号量没有所有权概念）。 这在某些专门的上下文中是有用的，例如死锁恢复。</li>
+</ul>
+<a id="more"></a>
+<h2 id="2-构造方法"><a href="#2-构造方法" class="headerlink" title="2.构造方法"></a>2.构造方法</h2><table>
+<thead>
+<tr>
+<th>Constructor and Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Semaphore(int permits)</code>创建一个 <code>Semaphore</code>与给定数量的许可证和非公平公平设置。</td>
+</tr>
+<tr>
+<td><code>Semaphore(int permits, boolean fair)</code>创建一个 <code>Semaphore</code>与给定数量的许可证和给定的公平设置。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-方法"><a href="#3-方法" class="headerlink" title="3.方法"></a>3.方法</h2><table>
+<thead>
+<tr>
+<th>Modifier and Type</th>
+<th>Method and Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>void</code></td>
+<td><code>acquire()</code>从该信号量获取许可证，阻止直到可用，或线程为 interrupted。</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>acquire(int permits)</code>从该信号量获取给定数量的许可证，阻止直到所有可用，否则线程为 interrupted 。</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>acquireUninterruptibly()</code>从这个信号灯获取许可证，阻止一个可用的。</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>acquireUninterruptibly(int permits)</code>从该信号量获取给定数量的许可证，阻止直到所有可用。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>availablePermits()</code>返回此信号量中当前可用的许可数。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>drainPermits()</code>获取并返回所有可立即获得的许可证。</td>
+</tr>
+<tr>
+<td><code>protected Collection&lt;Thread&gt;</code></td>
+<td><code>getQueuedThreads()</code>返回一个包含可能正在等待获取的线程的集合。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>getQueueLength()</code>返回等待获取的线程数的估计。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>hasQueuedThreads()</code>查询任何线程是否等待获取。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>isFair()</code>如果此信号量的公平设置为真，则返回 <code>true</code> 。</td>
+</tr>
+<tr>
+<td><code>protected void</code></td>
+<td><code>reducePermits(int reduction)</code>缩小可用许可证的数量。</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>release()</code>释放许可证，将其返回到信号量。</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>release(int permits)</code>释放给定数量的许可证，将其返回到信号量。</td>
+</tr>
+<tr>
+<td><code>String</code></td>
+<td><code>toString()</code>返回一个标识此信号量的字符串及其状态。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>tryAcquire()</code>从这个信号量获得许可证，只有在调用时可以使用该许可证。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>tryAcquire(int permits)</code>从这个信号量获取给定数量的许可证，只有在调用时全部可用。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>tryAcquire(int permits, long timeout, TimeUnit unit)</code>从该信号量获取给定数量的许可证，如果在给定的等待时间内全部可用，并且当前线程尚未 interrupted 。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>tryAcquire(long timeout, TimeUnit unit)</code>如果在给定的等待时间内可用，并且当前线程尚未到达 interrupted，则从该信号量获取许可。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-同一时间仅有两个线程进入方法"><a href="#4-同一时间仅有两个线程进入方法" class="headerlink" title="4.同一时间仅有两个线程进入方法"></a>4.同一时间仅有两个线程进入方法</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Random;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Semaphore;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SemaphoreTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">(Semaphore semaphore,<span class="keyword">int</span> time)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            semaphore.acquire();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">" is running ..."</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(time);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        semaphore.release();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        SemaphoreTest test = <span class="keyword">new</span> SemaphoreTest();</span><br><span class="line">        Semaphore semaphore = <span class="keyword">new</span> Semaphore(<span class="number">2</span>);</span><br><span class="line">        Random random = <span class="keyword">new</span> Random();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (i&lt;<span class="number">20</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    test.method(semaphore,random.nextInt(<span class="number">3000</span>));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* *</span></span><br><span class="line"><span class="comment"> * Thread-1 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-0 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-2 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-3 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-4 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-5 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-6 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-9 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-8 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-13 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-10 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-14 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-11 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-7 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-15 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-12 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-16 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-17 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-19 is running ...</span></span><br><span class="line"><span class="comment"> * Thread-18 is running ...</span></span><br><span class="line"><span class="comment"> * */</span></span><br></pre></td></tr></table></figure>
+
+
+      
+
+    </section>
+    
+      <section class='ArticleMeta'>
+          <div>
+            发布于&nbsp;
+            <time datetime="2019-06-13T14:20:37.000Z" itemprop="datePublished">
+              2019-06-13
+            </time>
+          </div>
+          
+            <div>
+              tags: 
+  <li class="meta-text">
+  { <a href="/tags/Java/">Java</a> }
+  </li>
+
+
+            </div>
+          
+      </section>
+    
+    
+</article>
+
+  
+</div>
+
+            <footer>
+    <div>© 2019 - H14ugust </div>
+    <div>
+        <span>
+            Powered by <a href="https://hexo.io">Hexo</a>
+        </span>
+        ,
+        <span>
+            Theme - <a href="https://github.com/nameoverflow/hexo-theme-icalm">Icalm</a>
+        </span>
+    </div>
+</footer>
+
+        </div>
+    </div>
+</div>
+<script src="/js/pager/dist/singlepager.js"></script>
+<script>
+var sp = new Pager('data-pager-shell')
+
+</script>
+</body>
+</html>

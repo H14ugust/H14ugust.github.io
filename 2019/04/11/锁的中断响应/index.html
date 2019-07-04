@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>锁的中断响应 | H14ugust&#39;s Blog</title>
+  
+  
+  
+  <!--link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github-gist.min.css"-->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github-gist.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+<div class="Shell">
+    <aside class='SideBar'>
+    <section class='avatar' style="background-image: url()">
+        <div class='av-pic' style="background-image: url()">
+        </div>
+    </section>
+    <section class='menu'>
+        <div>H14ugust&#39;s Blog</div>
+        
+        <ul>
+          
+            <a href="/" class="Btn">
+              <li>Home</li>
+            </a>  
+          
+            <a href="/archives/" class="Btn">
+              <li>Archive</li>
+            </a>  
+          
+            <a href="/tags/" class="Btn">
+              <li>Tags</li>
+            </a>  
+          
+            <a href="/categories/" class="Btn">
+              <li>Categories</li>
+            </a>  
+          
+            <a href="/about/" class="Btn">
+              <li>About</li>
+            </a>  
+          
+        </ul>
+    </section>
+    <section class="media">
+        
+    </section>
+</aside>
+
+    <div class="container">
+        <div data-pager-shell>
+            <div>
+  <article class='ContentView'>
+    <header class='PageTitle'>
+        <h1>锁的中断响应</h1>
+    </header>
+
+    <section>
+      <h1 id="锁的中断响应"><a href="#锁的中断响应" class="headerlink" title="锁的中断响应"></a>锁的中断响应</h1><h2 id="1-lockInterruptibly"><a href="#1-lockInterruptibly" class="headerlink" title="1.lockInterruptibly"></a>1.lockInterruptibly</h2><p><code>Synchronized</code>关键字不支持中断响应。如果有一个线程在等待锁，结果只有两种。获得锁并继续执行，或保持等待。</p>
+<p>重入锁<code>ReentrantLock</code>增加了对锁的中断响应<code>lockInterruptibly</code>的支持，<strong>线程可以被中断</strong>。也就是可以在线程等待锁的过程中，取消线程对锁的竞争。</p>
+<a id="more"></a>
+<table>
+<thead>
+<tr>
+<th>方法名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>void lockInterruptibly() throws InterruptedException</td>
+<td>可中断地获取锁，和lock()方法的不同之处在于该方法会相应中断，即在锁的获取中可以中断当前线程</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-中断对锁的竞争"><a href="#2-中断对锁的竞争" class="headerlink" title="2.中断对锁的竞争"></a>2.中断对锁的竞争</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReentrantLock;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IntLock</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> ReentrantLock lock1 = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> ReentrantLock lock2 = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">    <span class="keyword">int</span> lock;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">IntLock</span><span class="params">(<span class="keyword">int</span> lock)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.lock = lock;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(lock==<span class="number">1</span>) &#123;</span><br><span class="line">                lock1.lockInterruptibly();</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    Thread.sleep(<span class="number">500</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">"，等待lock1！"</span>);</span><br><span class="line">                lock2.lockInterruptibly();</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">"，执行完毕！"</span>);</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                lock2.lockInterruptibly();</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    Thread.sleep(<span class="number">500</span>);</span><br><span class="line">                &#125;<span class="keyword">catch</span> (InterruptedException e)&#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">"，等待lock2！"</span>);</span><br><span class="line">                lock1.lockInterruptibly();</span><br><span class="line">                System.out.println(Thread.currentThread().getName()+<span class="string">"，执行完毕！"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;<span class="keyword">catch</span> (InterruptedException e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(lock1.isHeldByCurrentThread())&#123;</span><br><span class="line">                lock1.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(lock2.isHeldByCurrentThread())&#123;</span><br><span class="line">                lock2.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">"，退出。"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException</span>&#123;</span><br><span class="line">        IntLock intLock1 = <span class="keyword">new</span> IntLock(<span class="number">1</span>);</span><br><span class="line">        IntLock intLock2 = <span class="keyword">new</span> IntLock(<span class="number">2</span>);</span><br><span class="line">        Thread thread1 = <span class="keyword">new</span> Thread(intLock1, <span class="string">"线程1"</span>);</span><br><span class="line">        Thread thread2 = <span class="keyword">new</span> Thread(intLock2, <span class="string">"线程2"</span>);</span><br><span class="line">        thread1.start();</span><br><span class="line">        thread2.start();</span><br><span class="line">        System.out.println(<span class="string">"开始死锁。。。。"</span>);</span><br><span class="line">        Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">        thread2.interrupt(); <span class="comment">// 中断线程2</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 死锁时间。。。。</span></span><br><span class="line"><span class="comment"> * 线程2，等待lock2！</span></span><br><span class="line"><span class="comment"> * 线程1，等待lock1！</span></span><br><span class="line"><span class="comment"> * java.lang.InterruptedException</span></span><br><span class="line"><span class="comment"> * 	at java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireInterruptibly(AbstractQueuedSynchronizer.java:898)</span></span><br><span class="line"><span class="comment"> * 	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireInterruptibly(AbstractQueuedSynchronizer.java:1222)</span></span><br><span class="line"><span class="comment"> * 	at java.util.concurrent.locks.ReentrantLock.lockInterruptibly(ReentrantLock.java:335)</span></span><br><span class="line"><span class="comment"> * 	at IntLock.run(IntLock.java:34)</span></span><br><span class="line"><span class="comment"> * 	at java.lang.Thread.run(Thread.java:748)</span></span><br><span class="line"><span class="comment"> * 线程2，退出。</span></span><br><span class="line"><span class="comment"> * 线程1，执行完毕！</span></span><br><span class="line"><span class="comment"> * 线程1，退出。</span></span><br><span class="line"><span class="comment"> * **/</span></span><br></pre></td></tr></table></figure>
+<p>线程1占用lock1等待lock2，线程2占用lock2等待lock1，形成死锁。</p>
+<p>通过 thread2.interrupt() 中断lock2使得死锁得以解决，线程2放弃对lock1的申请并释放lock2。</p>
+
+
+      
+
+    </section>
+    
+      <section class='ArticleMeta'>
+          <div>
+            发布于&nbsp;
+            <time datetime="2019-04-11T11:35:08.000Z" itemprop="datePublished">
+              2019-04-11
+            </time>
+          </div>
+          
+            <div>
+              tags: 
+  <li class="meta-text">
+  { <a href="/tags/Java/">Java</a> }
+  </li>
+
+
+            </div>
+          
+      </section>
+    
+    
+</article>
+
+  
+</div>
+
+            <footer>
+    <div>© 2019 - H14ugust </div>
+    <div>
+        <span>
+            Powered by <a href="https://hexo.io">Hexo</a>
+        </span>
+        ,
+        <span>
+            Theme - <a href="https://github.com/nameoverflow/hexo-theme-icalm">Icalm</a>
+        </span>
+    </div>
+</footer>
+
+        </div>
+    </div>
+</div>
+<script src="/js/pager/dist/singlepager.js"></script>
+<script>
+var sp = new Pager('data-pager-shell')
+
+</script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>并发工具类CyclicBarrier | H14ugust&#39;s Blog</title>
+  
+  
+  
+  <!--link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github-gist.min.css"-->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github-gist.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+<div class="Shell">
+    <aside class='SideBar'>
+    <section class='avatar' style="background-image: url()">
+        <div class='av-pic' style="background-image: url()">
+        </div>
+    </section>
+    <section class='menu'>
+        <div>H14ugust&#39;s Blog</div>
+        
+        <ul>
+          
+            <a href="/" class="Btn">
+              <li>Home</li>
+            </a>  
+          
+            <a href="/archives/" class="Btn">
+              <li>Archive</li>
+            </a>  
+          
+            <a href="/tags/" class="Btn">
+              <li>Tags</li>
+            </a>  
+          
+            <a href="/categories/" class="Btn">
+              <li>Categories</li>
+            </a>  
+          
+            <a href="/about/" class="Btn">
+              <li>About</li>
+            </a>  
+          
+        </ul>
+    </section>
+    <section class="media">
+        
+    </section>
+</aside>
+
+    <div class="container">
+        <div data-pager-shell>
+            <div>
+  <article class='ContentView'>
+    <header class='PageTitle'>
+        <h1>并发工具类CyclicBarrier</h1>
+    </header>
+
+    <section>
+      <h1 id="并发工具类CyclicBarrier"><a href="#并发工具类CyclicBarrier" class="headerlink" title="并发工具类CyclicBarrier"></a>并发工具类CyclicBarrier</h1><h2 id="1-CyclicBarrier-栅栏"><a href="#1-CyclicBarrier-栅栏" class="headerlink" title="1.CyclicBarrier-栅栏"></a>1.CyclicBarrier-栅栏</h2><ul>
+<li>允许一组线程全部等待彼此达到共同屏障点的同步辅助。 循环阻塞在涉及固定大小的线程方的程序中很有用，这些线程必须偶尔等待彼此。 屏障被称为<em>循环</em> ，因为它可以在等待的线程被释放之后重新使用。</li>
+<li>A <code>CyclicBarrier</code>支持一个可选的<code>Runnable</code>命令，每个屏障点运行一次，在派对中的最后一个线程到达之后，但在任何线程释放之前。 在任何一方继续进行之前，此<em>屏障操作</em>对更新共享状态很有用。</li>
+</ul>
+<a id="more"></a>
+<h2 id="2-构造方法"><a href="#2-构造方法" class="headerlink" title="2.构造方法"></a>2.构造方法</h2><table>
+<thead>
+<tr>
+<th>Constructor and Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CyclicBarrier(int parties)</code>创建一个新的 <code>CyclicBarrier</code> ，当给定数量的线程（线程）等待它时，它将跳闸，并且当屏障跳闸时不执行预定义的动作。</td>
+</tr>
+<tr>
+<td><code>CyclicBarrier(int parties, Runnable barrierAction)</code>创建一个新的 <code>CyclicBarrier</code> ，当给定数量的线程（线程）等待时，它将跳闸，当屏障跳闸时执行给定的屏障动作，由最后一个进入屏障的线程执行。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-方法摘要"><a href="#3-方法摘要" class="headerlink" title="3.方法摘要"></a>3.方法摘要</h2><table>
+<thead>
+<tr>
+<th>Modifier and Type</th>
+<th>Method and Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td><code>await()</code>等待所有parties已经在这个障碍上调用了 <code>await</code> 。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>await(long timeout, TimeUnit unit)</code>等待所有parties已经在此屏障上调用 <code>await</code> ，或指定的等待时间过去。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>getNumberWaiting()</code>返回目前正在等待障碍的各方的数量。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>getParties()</code>返回通过这个障碍所需的party数量。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>isBroken()</code>查询这个障碍是否处于破碎状态。</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>reset()</code>将屏障重置为初始状态。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-模拟开会"><a href="#4-模拟开会" class="headerlink" title="4.模拟开会"></a>4.模拟开会</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Random;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.BrokenBarrierException;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.CyclicBarrier;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CyclicBarrierTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Random random = <span class="keyword">new</span> Random();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">meeting</span><span class="params">(CyclicBarrier cyclicBarrier)</span></span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(random.nextInt(<span class="number">4000</span>));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"到达会议室，等待开会"</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            cyclicBarrier.await();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (BrokenBarrierException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(random.nextInt(<span class="number">2000</span>));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"发言"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        CyclicBarrierTest test = <span class="keyword">new</span> CyclicBarrierTest();</span><br><span class="line">        CyclicBarrier cyclicBarrier = <span class="keyword">new</span> CyclicBarrier(<span class="number">10</span>, <span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                System.out.println(<span class="string">"开始开会！"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i =<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    test.meeting(cyclicBarrier);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/* *</span></span><br><span class="line"><span class="comment"> * Thread-7到达会议室，等待开会</span></span><br><span class="line"><span class="comment"> * Thread-1到达会议室，等待开会</span></span><br><span class="line"><span class="comment"> * Thread-2到达会议室，等待开会</span></span><br><span class="line"><span class="comment"> * Thread-5到达会议室，等待开会</span></span><br><span class="line"><span class="comment"> * Thread-8到达会议室，等待开会</span></span><br><span class="line"><span class="comment"> * Thread-4到达会议室，等待开会</span></span><br><span class="line"><span class="comment"> * Thread-9到达会议室，等待开会</span></span><br><span class="line"><span class="comment"> * Thread-0到达会议室，等待开会</span></span><br><span class="line"><span class="comment"> * Thread-6到达会议室，等待开会</span></span><br><span class="line"><span class="comment"> * Thread-3到达会议室，等待开会</span></span><br><span class="line"><span class="comment"> * 开始开会！</span></span><br><span class="line"><span class="comment"> * Thread-5发言</span></span><br><span class="line"><span class="comment"> * Thread-1发言</span></span><br><span class="line"><span class="comment"> * Thread-0发言</span></span><br><span class="line"><span class="comment"> * Thread-6发言</span></span><br><span class="line"><span class="comment"> * Thread-8发言</span></span><br><span class="line"><span class="comment"> * Thread-2发言</span></span><br><span class="line"><span class="comment"> * Thread-9发言</span></span><br><span class="line"><span class="comment"> * Thread-3发言</span></span><br><span class="line"><span class="comment"> * Thread-7发言</span></span><br><span class="line"><span class="comment"> * Thread-4发言</span></span><br><span class="line"><span class="comment"> * */</span></span><br></pre></td></tr></table></figure>
+
+      
+
+    </section>
+    
+      <section class='ArticleMeta'>
+          <div>
+            发布于&nbsp;
+            <time datetime="2019-06-13T06:27:45.000Z" itemprop="datePublished">
+              2019-06-13
+            </time>
+          </div>
+          
+            <div>
+              tags: 
+  <li class="meta-text">
+  { <a href="/tags/Java/">Java</a> }
+  </li>
+
+
+            </div>
+          
+      </section>
+    
+    
+</article>
+
+  
+</div>
+
+            <footer>
+    <div>© 2019 - H14ugust </div>
+    <div>
+        <span>
+            Powered by <a href="https://hexo.io">Hexo</a>
+        </span>
+        ,
+        <span>
+            Theme - <a href="https://github.com/nameoverflow/hexo-theme-icalm">Icalm</a>
+        </span>
+    </div>
+</footer>
+
+        </div>
+    </div>
+</div>
+<script src="/js/pager/dist/singlepager.js"></script>
+<script>
+var sp = new Pager('data-pager-shell')
+
+</script>
+</body>
+</html>

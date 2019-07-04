@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>H14ugust&#39;s Blog</title>
+  
+  
+  
+  <!--link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github-gist.min.css"-->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/github-gist.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+<div class="Shell">
+    <aside class='SideBar'>
+    <section class='avatar' style="background-image: url()">
+        <div class='av-pic' style="background-image: url()">
+        </div>
+    </section>
+    <section class='menu'>
+        <div>H14ugust&#39;s Blog</div>
+        
+        <ul>
+          
+            <a href="/" class="Btn">
+              <li>Home</li>
+            </a>  
+          
+            <a href="/archives/" class="Btn">
+              <li>Archive</li>
+            </a>  
+          
+            <a href="/tags/" class="Btn">
+              <li>Tags</li>
+            </a>  
+          
+            <a href="/categories/" class="Btn">
+              <li>Categories</li>
+            </a>  
+          
+            <a href="/about/" class="Btn">
+              <li>About</li>
+            </a>  
+          
+        </ul>
+    </section>
+    <section class="media">
+        
+    </section>
+</aside>
+
+    <div class="container">
+        <div data-pager-shell>
+            <ul class="Index">
+  
+    <header class='PageTitle'>
+        <h1>{ Java }</h1>
+    </header>
+  
+  
+    <li>
+      <article class='ListView'>
+    <header class="title">
+      
+        <h1>
+          <a href="/2019/04/11/锁的中断响应/">锁的中断响应</a>
+        </h1>
+      
+      <div class='ListMeta'>
+  <time datetime="2019-04-11T11:35:08.000Z" itemprop="datePublished">
+    2019-04-11
+  </time>
+  
+  | 
+  <ul>
+    
+  <li class="meta-text">
+  { <a href="/tags/Java/">Java</a> }
+  </li>
+
+
+  </ul>
+  
+  
+</div>
+
+    </header>
+    <div>
+      
+        <h1 id="锁的中断响应"><a href="#锁的中断响应" class="headerlink" title="锁的中断响应"></a>锁的中断响应</h1><h2 id="1-lockInterruptibly"><a href="#1-lockInterruptibly" class="headerlink" title="1.lockInterruptibly"></a>1.lockInterruptibly</h2><p><code>Synchronized</code>关键字不支持中断响应。如果有一个线程在等待锁，结果只有两种。获得锁并继续执行，或保持等待。</p>
+<p>重入锁<code>ReentrantLock</code>增加了对锁的中断响应<code>lockInterruptibly</code>的支持，<strong>线程可以被中断</strong>。也就是可以在线程等待锁的过程中，取消线程对锁的竞争。</p>
+        
+          <div class="more-link">
+            <a href="/2019/04/11/锁的中断响应/#more">Read On »</a>
+          </div>
+        
+      
+    </div>
+</article>
+
+    </li>
+  
+    <li>
+      <article class='ListView'>
+    <header class="title">
+      
+        <h1>
+          <a href="/2019/04/10/Java多线程/">Java多线程</a>
+        </h1>
+      
+      <div class='ListMeta'>
+  <time datetime="2019-04-10T05:43:47.000Z" itemprop="datePublished">
+    2019-04-10
+  </time>
+  
+  | 
+  <ul>
+    
+  <li class="meta-text">
+  { <a href="/tags/Java/">Java</a> }
+  </li>
+
+
+  </ul>
+  
+  
+</div>
+
+    </header>
+    <div>
+      
+        <h1 id="Java多线程"><a href="#Java多线程" class="headerlink" title="Java多线程"></a>Java多线程</h1><h2 id="1-多线程优点"><a href="#1-多线程优点" class="headerlink" title="1.多线程优点"></a>1.多线程优点</h2><ul>
+<li>线程占用系统资源比进程少</li>
+<li>线程共享内存，而进程不能</li>
+</ul>
+<h2 id="2-Java实现多线程的方式"><a href="#2-Java实现多线程的方式" class="headerlink" title="2.Java实现多线程的方式"></a>2.Java实现多线程的方式</h2><ul>
+<li>继承<code>Thread</code>类</li>
+<li>实现<code>Runnable</code>接口</li>
+<li>实现<code>Callable</code>接口</li>
+</ul>
+        
+          <div class="more-link">
+            <a href="/2019/04/10/Java多线程/#more">Read On »</a>
+          </div>
+        
+      
+    </div>
+</article>
+
+    </li>
+  
+    <li>
+      <article class='ListView'>
+    <header class="title">
+      
+        <h1>
+          <a href="/2019/04/08/volatile关键字/">volatile关键字</a>
+        </h1>
+      
+      <div class='ListMeta'>
+  <time datetime="2019-04-08T14:23:09.000Z" itemprop="datePublished">
+    2019-04-08
+  </time>
+  
+  | 
+  <ul>
+    
+  <li class="meta-text">
+  { <a href="/tags/Java/">Java</a> }
+  </li>
+
+
+  </ul>
+  
+  
+</div>
+
+    </header>
+    <div>
+      
+        <h2 id="volatile关键字"><a href="#volatile关键字" class="headerlink" title="volatile关键字"></a>volatile关键字</h2><p>　　一旦一个共享变量（类的成员变量、类的静态成员变量）被<code>volatile</code>修饰之后，那么就具备了两层语义：</p>
+<p>　　1）保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。</p>
+<p>　　2）禁止进行指令重排序。</p>
+        
+          <div class="more-link">
+            <a href="/2019/04/08/volatile关键字/#more">Read On »</a>
+          </div>
+        
+      
+    </div>
+</article>
+
+    </li>
+  
+</ul>
+
+  <section id="nav-wrapper">
+    <nav id="page-nav">
+      <a class="extend prev" rel="prev" href="/tags/Java/">« prev</a><a class="page-number" href="/tags/Java/">1</a><span class="page-number current">2</span>
+    </nav>
+  </section>
+
+
+
+            <footer>
+    <div>© 2019 - H14ugust </div>
+    <div>
+        <span>
+            Powered by <a href="https://hexo.io">Hexo</a>
+        </span>
+        ,
+        <span>
+            Theme - <a href="https://github.com/nameoverflow/hexo-theme-icalm">Icalm</a>
+        </span>
+    </div>
+</footer>
+
+        </div>
+    </div>
+</div>
+<script src="/js/pager/dist/singlepager.js"></script>
+<script>
+var sp = new Pager('data-pager-shell')
+
+</script>
+</body>
+</html>
