@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="volatile关键字　　一旦一个共享变量（类的成员变量、类的静态成员变量）被volatile修饰之后，那么就具备了两层语义： 　　1）保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。 　　2）禁止进行指令重排序。">
+<meta name="description" content="volatile关键字　　一旦一个共享变量（类的成员变量、类的静态成员变量）被volatile修饰之后，那么就具备了两层语义： 　　1）保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。 　　2）禁止进行指令重排序。即Java内存模型中描述的所谓线程内表现为串行的语义,Within-Thread As-If-Serial Semantics">
 <meta name="keywords" content="Java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="volatile关键字">
 <meta property="og:url" content="http://yoursite.com/2019/04/08/volatile关键字/index.html">
 <meta property="og:site_name" content="H14ugust&#39;s Blog">
-<meta property="og:description" content="volatile关键字　　一旦一个共享变量（类的成员变量、类的静态成员变量）被volatile修饰之后，那么就具备了两层语义： 　　1）保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。 　　2）禁止进行指令重排序。">
+<meta property="og:description" content="volatile关键字　　一旦一个共享变量（类的成员变量、类的静态成员变量）被volatile修饰之后，那么就具备了两层语义： 　　1）保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。 　　2）禁止进行指令重排序。即Java内存模型中描述的所谓线程内表现为串行的语义,Within-Thread As-If-Serial Semantics">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-07-04T09:37:39.667Z">
+<meta property="og:updated_time" content="2019-08-23T14:04:55.217Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="volatile关键字">
-<meta name="twitter:description" content="volatile关键字　　一旦一个共享变量（类的成员变量、类的静态成员变量）被volatile修饰之后，那么就具备了两层语义： 　　1）保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。 　　2）禁止进行指令重排序。">
+<meta name="twitter:description" content="volatile关键字　　一旦一个共享变量（类的成员变量、类的静态成员变量）被volatile修饰之后，那么就具备了两层语义： 　　1）保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。 　　2）禁止进行指令重排序。即Java内存模型中描述的所谓线程内表现为串行的语义,Within-Thread As-If-Serial Semantics">
 
 
 
@@ -302,7 +302,7 @@
       
         <h2 id="volatile关键字"><a href="#volatile关键字" class="headerlink" title="volatile关键字"></a>volatile关键字</h2><p>　　一旦一个共享变量（类的成员变量、类的静态成员变量）被<code>volatile</code>修饰之后，那么就具备了两层语义：</p>
 <p>　　1）保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。</p>
-<p>　　2）禁止进行指令重排序。</p>
+<p>　　2）禁止进行指令重排序。即Java内存模型中描述的所谓<strong>线程内表现为串行的语义,Within-Thread As-If-Serial Semantics</strong>。</p>
 <a id="more"></a>
 <ul>
 <li><p>不保证<strong>原子性</strong></p>
@@ -438,7 +438,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
