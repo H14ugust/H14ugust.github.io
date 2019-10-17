@@ -229,6 +229,389 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/28/锁/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="H14ugust">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="H14ugust's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/28/锁/" itemprop="url">锁</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-28T13:35:21+08:00">
+                2019-08-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><h2 id="1-synchronized字节码表示"><a href="#1-synchronized字节码表示" class="headerlink" title="1. synchronized字节码表示"></a>1. <code>synchronized</code>字节码表示</h2><p><code>synchronized</code>在java中存在两种内建语义</p>
+<p>其中同步代码块是通过使用 <code>monitorenter</code> 和<code>monitorexit</code> 实现的，而同步方法却是使用 <code>ACC_SYNCHRONIZED</code> 标记符隐式的实现，原理是通过方法调用指令检查该方法在常量池中是否包含 <code>ACC_SYNCHRONIZED</code>标记符</p>
+<ul>
+<li><code>synchronized</code>语句<ul>
+<li><code>synchronized</code>语句被javac编译成字节码的时候，会在同步块的入口位置和退出位置分别插入<code>monitorenter</code>和<code>monitorexit</code>字节码指令</li>
+</ul>
+</li>
+<li><code>synchronized</code>方法<ul>
+<li><code>synchronized</code>方法被编译成普通的方法调用和返回指令如<code>invokevirtual</code>、<code>arerunrn</code>。在JVM层面并没有任何特别的指令来实现被<code>synchronized</code>修饰的方法，而是在Class文件的方法表中将该方法的<code>access_flags</code>字段中的<code>synchronized</code>标志位置1，表示该方法是同步方法并使用调用该方法的对象或该方法所属的Class在JVM的内部对象表示Klass作为锁对象。</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-Monitor-Record"><a href="#2-Monitor-Record" class="headerlink" title="2.Monitor Record"></a>2.Monitor Record</h2><p>Monitor Record是线程私有的数据结构，每个线程都一个可用monitor record列表，同时还有一个全局的可用列表。monitor record是线程持有锁的具体实现。</p>
+<p><strong>每个对象都有一个monitor</strong>。</p>
+<p><strong>每一个被锁住的对象都会和一个monitor record关联。其对象头中的<code>Lock Word</code>指向monitor record的起始地址，同时monitor record中有一个owner字段存放拥有该锁的线程的唯一标识。表示该锁被这个线程占用。</strong></p>
+<p>内部结构：</p>
+<ul>
+<li><p><code>Owner</code>：初始时为NULL表示当前没有任何线程拥有该monitor record，当线程成功拥有该锁后<strong>保存线程唯一标识</strong>，当锁被释放时又设置为NULL；</p>
+</li>
+<li><p><code>EntryQ</code>:关联一个系统互斥锁（semaphore），阻塞所有试图锁住monitor record失败的线程。</p>
+</li>
+<li><p><code>RcThis</code>:表示blocked或waiting在该monitor record上的所有线程的个数。</p>
+</li>
+<li><p><code>Nest</code>:用来实现重入锁的计数。</p>
+</li>
+<li><p><code>HashCode</code>:保存从对象头拷贝过来的HashCode值（可能还包含GC age）。</p>
+</li>
+<li><p><code>Candidate</code>:用来避免不必要的阻塞或等待线程唤醒，因为每一次只有一个线程能够成功拥有锁，如果每次前一个释放锁的线程唤醒所有正在阻塞或等待的线程，会引起不必要的上下文切换（从阻塞到就绪然后因为竞争锁失败又被阻塞）从而导致性能严重下降。Candidate只有两种可能的值0表示没有需要唤醒的线程1表示要唤醒一个继任线程来竞争锁。</p>
+</li>
+</ul>
+<p>工作原理</p>
+<ul>
+<li>线程如果获得监视锁成功，将成为该监视锁对象的拥有者</li>
+<li>在任一时刻，监视器对象只属于一个活动线程(Owner)</li>
+<li>拥有者可以调用wait方法自动释放监视锁，进入等待状态</li>
+</ul>
+<h2 id="3-锁优化"><a href="#3-锁优化" class="headerlink" title="3.锁优化"></a>3.锁优化</h2><ul>
+<li>自旋锁Spinning</li>
+<li>自适应自旋锁</li>
+<li>锁消除</li>
+<li>锁粗化</li>
+<li>轻量级锁</li>
+<li>偏向锁</li>
+</ul>
+<p>一个锁有四种状态</p>
+<ul>
+<li><p>无锁状态</p>
+</li>
+<li><p>偏向锁状态</p>
+<ul>
+<li><p><strong>大多数情况下不存在多线程竞争的情况</strong>，而是<strong>同一个线程多次获取到同一个锁</strong>，为了让线程获得锁代价更低，因此设计了偏向锁</p>
+</li>
+<li><p>在只有一个线程执行同步块时通过增加标记检查而减少CAS操作进一步提高性能 Mark Word</p>
+</li>
+</ul>
+</li>
+<li><p>轻量级锁</p>
+<ul>
+<li>线程在竞争轻量级锁前,在线程的栈内存中分配一段空间作为锁记录空间(就是轻量级锁对应的对象的对象头的字段的拷贝),拷贝好后,线程通过CAS去竞争这个对象锁，试图把对象的对象头子段改成指向所记录空间，如果成功则说明获取轻量级锁成功，如果失败，则进入自旋（说白了就是循环）取试着获取锁。如果自旋到一定次数还是不能获取到锁，则进入重量级锁。</li>
+</ul>
+</li>
+<li><p>重量级锁</p>
+<ul>
+<li>重量级锁通过对象内部的monitor实现</li>
+<li>monitor的本质是依赖于底层操作系统的Mutex Lock实现，操作系统实现线程间的切换是通过用户态与内核态的切换完成的，而切换成本很高</li>
+<li>Mutex Lock最核心的理念就是 尝试获取锁.若可得到就占有.若不能,就进入睡眠等待</li>
+</ul>
+</li>
+</ul>
+<p>锁升级</p>
+<ul>
+<li>锁的状态会随着竞争情况逐渐升级，<strong>锁允许升级但不允许降级</strong></li>
+<li><strong>不允许降级的目的是提高获得锁和释放锁的效率</strong></li>
+</ul>
+<h2 id="4-monitorenter-amp-monitorexit"><a href="#4-monitorenter-amp-monitorexit" class="headerlink" title="4.monitorenter&amp;monitorexit"></a>4.monitorenter&amp;monitorexit</h2><ul>
+<li><p>获取锁（monitorenter）的大概过程如下：</p>
+<p>（1）当对象处于无锁状态时（RecordWord值为HashCode，状态位为001），线程首先从自己的可用moniter record列表中取得一个空闲的moniter record，初始Nest和Owner值分别被预先设置为1和该线程自己的标识，一旦monitor record准备好然后我们通过CAS原子指令安装该monitor record的起始地址到对象头的LockWord字段来膨胀(原文为inflate，我觉得之所以叫inflate主要是由于当对象被膨胀后扩展了对象的大小；为了空间效率，将monitor record结构从对象头中抽出去，当需要的时候才将该结构attach到对象上)该对象，如果存在其他线程竞争锁的情况而调用CAS失败，则只需要简单的回到monitorenter重新开始获取锁的过程即可。</p>
+<p>（2）对象已经被膨胀同时Owner中保存的线程标识为获取锁的线程自己，这就是重入（reentrant）锁的情况，只需要简单的将Nest加1即可。不需要任何原子操作，效率非常高。</p>
+<p>（3）对象已膨胀但Owner的值为NULL，当一个锁上存在阻塞或等待的线程同时锁的前一个拥有者刚释放锁时会出现这种状态，此时多个线程通过CAS原子指令在多线程竞争状态下试图将Owner设置为自己的标识来获得锁，竞争失败的线程在则会进入到第四种情况（4）的执行路径。</p>
+<p>（4）对象处于膨胀状态同时Owner不为NULL(被锁住)，在调用操作系统的重量级的互斥锁之前先自旋一定的次数，当达到一定的次数时如果仍然没有成功获得锁，则开始准备进入阻塞状态，首先将rfThis的值原子性的加1，由于在加1的过程中可能会被其他线程破坏Object和monitor record之间的关联，所以在原子性加1后需要再进行一次比较以确保LockWord的值没有被改变，当发现被改变后则要重新进行monitorenter过程。同时再一次观察Owner是否为NULL，如果是则调用CAS参与竞争锁，锁竞争失败则进入到阻塞状态。</p>
+</li>
+<li><p>释放锁（monitorexit）的大概过程如下：</p>
+<p>（1）首先检查该对象是否处于膨胀状态并且该线程是这个锁的拥有者，如果发现不对则抛出异常；</p>
+<p>（2）检查Nest字段是否大于1，如果大于1则简单的将Nest减1并继续拥有锁，如果等于1，则进入到第（3）步；</p>
+<p>（3）检查rfThis是否大于0，设置Owner为NULL然后唤醒一个正在阻塞或等待的线程再一次试图获取锁，如果等于0则进入到第（4）步</p>
+<p>（4）缩小（deflate）一个对象，通过将对象的LockWord置换回原来的HashCode值来解除和monitor record之间的关联来释放锁，同时将monitor record放回到线程是有的可用monitor record列表。</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/27/Java线程安全/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="H14ugust">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="H14ugust's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/27/Java线程安全/" itemprop="url">Java线程安全</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-27T13:43:14+08:00">
+                2019-08-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Java线程安全"><a href="#Java线程安全" class="headerlink" title="Java线程安全"></a>Java线程安全</h1><h2 id="1-线程安全"><a href="#1-线程安全" class="headerlink" title="1.线程安全"></a>1.线程安全</h2><blockquote>
+<p>当多个线程访问一个对象时，如果不用考虑这些线程在运行时环境下的调度和交替执行，也不需要进行额外的同步，或者在调用方进行任何其他的协调操作，调用这个对象的行为都可以获得正确的结果，那这个对象是线程安全的。</p>
+<p>​                                                                                                                              《Java Concurrency In Practice》</p>
+</blockquote>
+<p>安全等级</p>
+<ul>
+<li>不可变<ul>
+<li><code>final</code>不可变对象一定是线程安全的，如<code>String</code>、<code>enum</code>、<code>java.lang.Number</code>的部分子类，<code>BigInteger</code>等</li>
+</ul>
+</li>
+<li>绝对线程安全<ul>
+<li>通常难以实现</li>
+</ul>
+</li>
+<li>相对线程安全<ul>
+<li>通常意义上的线程安全，<code>Vector</code>、<code>HashTable</code>等。</li>
+</ul>
+</li>
+<li>线程兼容<ul>
+<li>本身不安全，可采取适当手段安全使用。<code>ArrayList</code>、<code>HashMap</code>等</li>
+</ul>
+</li>
+<li>线程对立<ul>
+<li>有害，应尽量避免，如<code>@Deprecated</code>的<code>suspend()</code>和<code>resume()</code>。</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-实现线程安全的方式"><a href="#2-实现线程安全的方式" class="headerlink" title="2.实现线程安全的方式"></a>2.实现线程安全的方式</h2><h3 id="2-1-互斥同步"><a href="#2-1-互斥同步" class="headerlink" title="2.1.互斥同步"></a>2.1.互斥同步</h3><p>悲观、阻塞同步</p>
+<ul>
+<li>临界区</li>
+<li>互斥量</li>
+<li>信号量</li>
+</ul>
+<h3 id="2-2-非阻塞同步"><a href="#2-2-非阻塞同步" class="headerlink" title="2.2.非阻塞同步"></a>2.2.非阻塞同步</h3><p>乐观，硬件层面提供支持，冲突检测</p>
+<ul>
+<li>测试并设置</li>
+<li>获取并增加</li>
+<li>交换</li>
+<li><strong>比较并交换-CAS</strong></li>
+<li>加载链接/条件存储</li>
+</ul>
+<p><strong>CAS</strong>由<code>sun.misc.Unasafe</code>类里的<code>compareAndSwapInt()</code>、<code>compareAndSwapLong()</code>等几个包装方法提供。</p>
+<p><code>Unsafe</code>不是提供给用户程序调用的类，<code>Unsafe.getUnsafe()</code>的代码限制了只有启动类加载器加载的Class才能访问它。</p>
+<h3 id="2-3-无同步方案"><a href="#2-3-无同步方案" class="headerlink" title="2.3. 无同步方案"></a>2.3. 无同步方案</h3><p>即无需同步手段也是线程安全的</p>
+<ul>
+<li>可重入代码<ul>
+<li>不依赖堆上的数据和公用资源系统、用到的状态量都由参数传入、不调用非可重入方法</li>
+<li>可重入性：一个方法相同输入必返回相同结果。</li>
+</ul>
+</li>
+<li>线程本地存储<code>Thread Local</code><ul>
+<li>将共享数据的可见范围限制在同一线程中</li>
+<li>消费队列的架构模式</li>
+<li>经典Web交互模型，一个请求对应一个线程，Thread-per-Request</li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/25/双亲委派模型/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -560,8 +943,7 @@
 
       
         
-          
-            <h1 id="Java的装箱和拆箱"><a href="#Java的装箱和拆箱" class="headerlink" title="Java的装箱和拆箱"></a>Java的装箱和拆箱</h1><h2 id="1-装箱和拆箱"><a href="#1-装箱和拆箱" class="headerlink" title="1.装箱和拆箱"></a>1.装箱和拆箱</h2><table>
+          <h1 id="Java的装箱和拆箱"><a href="#Java的装箱和拆箱" class="headerlink" title="Java的装箱和拆箱"></a>Java的装箱和拆箱</h1><h2 id="1-装箱和拆箱"><a href="#1-装箱和拆箱" class="headerlink" title="1.装箱和拆箱"></a>1.装箱和拆箱</h2><table>
 <thead>
 <tr>
 <th>原始类型</th>
@@ -604,25 +986,13 @@
 </tbody>
 </table>
 <p>当表格中左边列出的基础类型与它们的包装类有如下几种情况时，编译器会<strong>自动</strong>帮我们进行装箱或拆箱.</p>
-<ul>
-<li>进行 = 赋值操作（装箱或拆箱）</li>
-<li>进行+，-，*，/混合运算 （拆箱）</li>
-<li>进行&gt;,&lt;,==比较运算（拆箱）</li>
-<li>调用equals进行比较（装箱）</li>
-<li>ArrayList,HashMap等集合类 添加基础类型数据时（装箱）</li>
-</ul>
-<h2 id="2-例子"><a href="#2-例子" class="headerlink" title="2.例子"></a>2.例子</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">autoBox</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        <span class="comment">//1</span></span><br><span class="line">        <span class="keyword">int</span> a = <span class="number">100</span>;</span><br><span class="line">        Integer b = <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">        System.out.println(a==b);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//2</span></span><br><span class="line">        Integer c = <span class="number">100</span>;</span><br><span class="line">        Integer d = <span class="number">100</span>;</span><br><span class="line">        System.out.println(c==d);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//3</span></span><br><span class="line">        c = <span class="number">200</span>;</span><br><span class="line">        d = <span class="number">200</span>;</span><br><span class="line">        System.out.println(c==d);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* true</span></span><br><span class="line"><span class="comment">* true</span></span><br><span class="line"><span class="comment">* false</span></span><br><span class="line"><span class="comment">* */</span></span><br></pre></td></tr></table></figure>
-<ol>
-<li>b拆箱，直接比较值</li>
-<li>100值装箱，为c和d赋值。==直接比较两者内存地址，产生true的原因是<code>IntegerCache</code>产生的缓存造成的。默认Integer cache 的下限是-128，上限默认127，可以配置，所以当赋值100给Integer时，刚好在这个range内，所以从cache中取对应的Integer并返回，所以二次返回的是<strong>同一个对象</strong>，所比较是相等的。</li>
-<li>当赋值200给Integer时，不在cache 的范围内，所以会new Integer并返回，当然==比较的结果是不相等的</li>
-</ol>
-<p>//Interger.valueOf()</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title">valueOf</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (i &gt;= IntegerCache.low &amp;&amp; i &lt;= IntegerCache.high)</span><br><span class="line">        <span class="keyword">return</span> IntegerCache.cache[i + (-IntegerCache.low)];</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Integer(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>//IntegerCache </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">IntegerCache</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> low = -<span class="number">128</span>;</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> high;</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">final</span> Integer cache[];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> &#123;</span><br><span class="line">  <span class="keyword">int</span> h = <span class="number">127</span>;</span><br><span class="line">  String integerCacheHighPropValue =</span><br><span class="line">          sun.misc.VM.getSavedProperty(<span class="string">"java.lang.Integer.IntegerCache.high"</span>);</span><br><span class="line">  <span class="keyword">if</span> (integerCacheHighPropValue != <span class="keyword">null</span>) &#123;</span><br><span class="line">     <span class="keyword">try</span> &#123;</span><br><span class="line">         <span class="keyword">int</span> i = parseInt(integerCacheHighPropValue);</span><br><span class="line">         i = Math.max(i, <span class="number">127</span>);</span><br><span class="line">         <span class="comment">// Maximum array size is Integer.MAX_VALUE</span></span><br><span class="line">         h = Math.min(i, Integer.MAX_VALUE - (-low) -<span class="number">1</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span>( NumberFormatException nfe) &#123;</span><br><span class="line">         <span class="comment">// If the property cannot be parsed into an int, ignore it.</span></span><br><span class="line">       &#125;</span><br><span class="line">     &#125;</span><br><span class="line">     high = h;</span><br><span class="line"></span><br><span class="line">     cache = <span class="keyword">new</span> Integer[(high - low) + <span class="number">1</span>];</span><br><span class="line">     <span class="keyword">int</span> j = low;</span><br><span class="line">     <span class="keyword">for</span>(<span class="keyword">int</span> k = <span class="number">0</span>; k &lt; cache.length; k++)</span><br><span class="line">        cache[k] = <span class="keyword">new</span> Integer(j++);</span><br><span class="line">  ....</span><br></pre></td></tr></table></figure>
-
-          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/08/23/Java的装箱和拆箱/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1239,290 +1609,13 @@
 
       
         
-          
-            <h1 id="equals-和"><a href="#equals-和" class="headerlink" title="equals()和=="></a>equals()和==</h1><h2 id="1-”-”"><a href="#1-”-”" class="headerlink" title="1.”==”"></a>1.”==”</h2><ul>
+          <h1 id="equals-和"><a href="#equals-和" class="headerlink" title="equals()和=="></a>equals()和==</h1><h2 id="1-”-”"><a href="#1-”-”" class="headerlink" title="1.”==”"></a>1.”==”</h2><ul>
 <li><strong>基本数据类型（也称原始数据类型）</strong>：<code>byte</code>,<code>short</code>,<code>char</code>,<code>int</code>,<code>long</code>,<code>float</code>,<code>double</code>,<code>boolean</code>。他们之间的比较，应用双等号<code>==</code>,比较的是他们的值。放在栈中。</li>
 <li><strong>引用数据类型</strong>：当他们用<code>==</code>进行比较的时候，比较的是他们在内存中的存放地址（确切的说，是堆内存地址）。</li>
 </ul>
-<h2 id="2-equals"><a href="#2-equals" class="headerlink" title="2. equals()"></a>2. equals()</h2><p>Java当中所有的类都是继承于<code>Object</code>这个超类的，在<code>Object</code>类中定义了一个<code>equals()</code>的方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object obj)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//this - s1</span></span><br><span class="line">    <span class="comment">//obj - s2</span></span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">this</span> == obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到，这个方法的初始默认行为是比较对象的内存地址值，一般来说，意义不大。所以，在一些类库当中这个方法被重写了，如<code>String</code>、<code>Integer</code>、<code>Date</code>。在这些类当中<code>equals()</code>有其自身的实现（一般都是用来比较对象的成员变量值是否相同），而不再是比较类在堆内存中的存放地址了。<br>所以说，对于复合数据类型之间进行<code>equals()</code>比较，在没有覆写<code>equals()</code>方法的情况下，他们之间的比较还是内存中的存放位置的地址值，跟<code>==</code>的结果相同；如果被复写，按照复写的要求来。</p>
-<p><code>String</code>的<code>equals()</code>方法被重写为</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object anObject)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span> == anObject) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (anObject <span class="keyword">instanceof</span> String) &#123;</span><br><span class="line">            String anotherString = (String)anObject;</span><br><span class="line">            <span class="keyword">int</span> n = value.length;</span><br><span class="line">            <span class="keyword">if</span> (n == anotherString.value.length) &#123;</span><br><span class="line">                <span class="keyword">char</span> v1[] = value;</span><br><span class="line">                <span class="keyword">char</span> v2[] = anotherString.value;</span><br><span class="line">                <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">while</span> (n-- != <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (v1[i] != v2[i])</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>通常可以认为：</p>
-<ul>
-<li><code>==</code>：比较的是对象的内存地址是否相同</li>
-<li><code>equals()</code>：比较的是对象的内容是否相同</li>
-</ul>
-<h2 id="3-hashCode"><a href="#3-hashCode" class="headerlink" title="3.hashCode()"></a>3.hashCode()</h2><ul>
-<li><p><strong>在每个覆盖了<code>equals()</code>方法的类中，都必须覆盖<code>hashCode()</code>方法，否则会导致该类无法结合所有基于散列的集合工作</strong></p>
-</li>
-<li><p><strong>相等的对象必须拥有相等的散列码</strong></p>
-</li>
-</ul>
-<p><code>hashCode()</code>被设计是用来使得哈希容器能高效的工作。在Java中，一些哈希容器，比如<code>Hashtable</code>,<code>HashMap</code>等等。当我们调用这些容器的诸如<code>get(Object obj)</code>方法时，容器的内部肯定需要判断一下当前<code>obj</code>对象在容器中是否存在，然后再进行后续的操作。一般来说，判断是够存在，肯定是要将<code>obj</code>对象和容器中的每个元素一一进行比较，要使用<code>equals()</code>才是正确的。</p>
-<p>但是如果哈希容器中的元素有很多的时候，使用<code>equals()</code>必然会很慢。这个时候我们想到一种替代方案就是<code>hashCode()</code>：当我们调用哈希容器的<code>get(Object obj)</code>方法时，它会首先利用查看当前容器中是否存在有相同哈希值的对象，如果不存在，那么直接返回<code>null</code>；如果存在，再调用当前对象的<code>equals()</code>方法比较一下看哈希处的对象是否和要查找的对象相同；如果不相同，那么返回<code>null</code>。如果相同，则返回该哈希处的对象。</p>
-<p>因此，在自定义一个类的时候，我们必须要同时重写<code>equals()</code>和<code>hashCode()</code>，并且必须保证：</p>
-<ul>
-<li>如果两个对象的<code>equals()</code>相等，那么他们的<code>hashCode()</code>必定相等。</li>
-<li>如果两个对象的<code>hashCode()</code>不相等，那么他们的<code>equals()</code>必定不等。</li>
-</ul>
-<blockquote>
-<p><a href="https://zhuanlan.zhihu.com/p/43001449" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/43001449</a></p>
-</blockquote>
-<p>//差的hashCode()</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashcode</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">42</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>散列表退化为了链表</p>
-<p>//好的hashCode()</p>
-<p>//关键域(需要比较equals的域)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PhoneNumber</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">short</span> areaCode,prefix,lineNum;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashcode</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> result = Short.hashCode(areaCode);</span><br><span class="line">        result = <span class="number">31</span>*result + Short.hashCode(prefix);</span><br><span class="line">        result = <span class="number">31</span>*result + Short.hashCode(lineNum);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>result=31*result+c</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/05/多线程题-循环打印10次ABC/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="H14ugust">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="H14ugust's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/05/多线程题-循环打印10次ABC/" itemprop="url">多线程题-循环打印10次ABC</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-05T14:16:37+08:00">
-                2019-07-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="多线程题-循环打印10次ABC"><a href="#多线程题-循环打印10次ABC" class="headerlink" title="多线程题-循环打印10次ABC"></a>多线程题-循环打印10次ABC</h1><p>有三个线程ID分别是A、B、C,请用多线编程实现，在屏幕上循环打印10次ABCABC</p>
-<h2 id="1-synchronized实现"><a href="#1-synchronized实现" class="headerlink" title="1.synchronized实现"></a>1.synchronized实现</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ABC</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String lock=<span class="string">"lock"</span>;</span><br><span class="line">    AtomicInteger count = <span class="keyword">new</span> AtomicInteger();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAX_COUNT = <span class="number">30</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ABC abc = <span class="keyword">new</span> ABC();</span><br><span class="line">        <span class="keyword">new</span> Thread(abc.new Thread_ABC(<span class="number">0</span>,<span class="string">"A"</span>)).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(abc.new Thread_ABC(<span class="number">1</span>,<span class="string">"B"</span>)).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(abc.new Thread_ABC(<span class="number">2</span>,<span class="string">"C"</span>)).start();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Thread_ABC</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">int</span> sign;</span><br><span class="line">        <span class="keyword">private</span> String val;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Thread_ABC</span><span class="params">(<span class="keyword">int</span> sign, String val)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.sign = sign;</span><br><span class="line">            <span class="keyword">this</span>.val = val;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (count.get() &gt;= MAX_COUNT)</span><br><span class="line">                        <span class="keyword">return</span>;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="comment">//synchronized (lock) &#123;</span></span><br><span class="line">                        <span class="keyword">if</span> (count.get() % <span class="number">3</span> == <span class="keyword">this</span>.sign) &#123;</span><br><span class="line">                            count.getAndIncrement();</span><br><span class="line">                            System.out.println(<span class="keyword">this</span>.val);</span><br><span class="line">                            <span class="comment">//lock.notifyAll();</span></span><br><span class="line">                        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                            <span class="comment">//lock.wait();</span></span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="comment">//&#125;</span></span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-Condition实现"><a href="#2-Condition实现" class="headerlink" title="2.Condition实现"></a>2.Condition实现</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MajusculeABC maj = <span class="keyword">new</span> MajusculeABC();</span><br><span class="line">        Thread t_a = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Thread_ABC(maj, <span class="string">'A'</span>));</span><br><span class="line">        Thread t_b = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Thread_ABC(maj, <span class="string">'B'</span>));</span><br><span class="line">        Thread t_c = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Thread_ABC(maj, <span class="string">'C'</span>));</span><br><span class="line">        t_a.start();</span><br><span class="line">        t_b.start();</span><br><span class="line">        t_c.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MajusculeABC</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">    <span class="keyword">private</span> AtomicInteger count = <span class="keyword">new</span> AtomicInteger();</span><br><span class="line">    <span class="keyword">private</span> Condition[] conditions = <span class="keyword">new</span> Condition[<span class="number">3</span>];</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MajusculeABC</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">            conditions[i] = lock.newCondition();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAX_COUNT = <span class="number">30</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Lock <span class="title">getLock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> lock;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AtomicInteger <span class="title">getCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Condition <span class="title">getCondition</span><span class="params">(<span class="keyword">int</span> sign)</span> </span>&#123;</span><br><span class="line">        sign = sign % <span class="number">3</span>;</span><br><span class="line">        <span class="keyword">return</span> conditions[sign];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Thread_ABC</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> MajusculeABC majusculeABC;</span><br><span class="line">    <span class="comment">//打印值</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">char</span> value;</span><br><span class="line">    <span class="comment">//标记值</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> sign;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Thread_ABC</span><span class="params">(MajusculeABC majusculeABC, <span class="keyword">char</span> value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.majusculeABC = majusculeABC;</span><br><span class="line">        <span class="keyword">this</span>.value = value;</span><br><span class="line">        <span class="keyword">this</span>.sign = value - <span class="string">'A'</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            Lock lock = majusculeABC.getLock();</span><br><span class="line">            lock.lock();</span><br><span class="line">            AtomicInteger count = majusculeABC.getCount();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">int</span> nowNum = count.get();</span><br><span class="line">                <span class="keyword">if</span> (nowNum &gt;= MajusculeABC.MAX_COUNT) &#123;</span><br><span class="line">                    <span class="keyword">return</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">int</span> mod = nowNum % <span class="number">3</span>;</span><br><span class="line">                <span class="keyword">if</span> (mod == sign) &#123;</span><br><span class="line">                    System.out.println(value);</span><br><span class="line">                    count.getAndIncrement();</span><br><span class="line">                    majusculeABC.getCondition(++nowNum).signal();</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    majusculeABC.getCondition(++nowNum).signal();</span><br><span class="line">                    majusculeABC.getCondition(nowNum).await();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/04/CAS算法/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="H14ugust">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="H14ugust's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/04/CAS算法/" itemprop="url">CAS算法</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-04T20:35:38+08:00">
-                2019-07-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="CAS算法"><a href="#CAS算法" class="headerlink" title="CAS算法"></a>CAS算法</h1><h2 id="1-CAS算法"><a href="#1-CAS算法" class="headerlink" title="1. CAS算法"></a>1. CAS算法</h2><p>CAS算法 即compare and swap（比较与交换），是一种有名的无锁算法。无锁编程，即不使用锁的情况下实现多线程之间的变量同步，也就是在没有线程被阻塞的情况下实现变量的同步，所以也叫非阻塞同步（Non-blocking Synchronization）。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/07/04/CAS算法/#more" rel="contents">
+            <a class="btn" href="/2019/07/26/equals()和==/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -1610,7 +1703,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">30</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1841,5 +1934,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
 </html>

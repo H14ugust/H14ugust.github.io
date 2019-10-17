@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Algorithm," />
+  <meta name="keywords" content="JVM," />
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="线性同余法线性同余方法（LCG）是个产生伪随机数的方法。">
-<meta name="keywords" content="Algorithm">
+<meta name="description" content="Java线程安全1.线程安全 当多个线程访问一个对象时，如果不用考虑这些线程在运行时环境下的调度和交替执行，也不需要进行额外的同步，或者在调用方进行任何其他的协调操作，调用这个对象的行为都可以获得正确的结果，那这个对象是线程安全的。 ​">
+<meta name="keywords" content="JVM">
 <meta property="og:type" content="article">
-<meta property="og:title" content="线性同余法">
-<meta property="og:url" content="http://yoursite.com/2019/07/26/线性同余法/index.html">
+<meta property="og:title" content="Java线程安全">
+<meta property="og:url" content="http://yoursite.com/2019/08/27/Java线程安全/index.html">
 <meta property="og:site_name" content="H14ugust&#39;s Blog">
-<meta property="og:description" content="线性同余法线性同余方法（LCG）是个产生伪随机数的方法。">
+<meta property="og:description" content="Java线程安全1.线程安全 当多个线程访问一个对象时，如果不用考虑这些线程在运行时环境下的调度和交替执行，也不需要进行额外的同步，或者在调用方进行任何其他的协调操作，调用这个对象的行为都可以获得正确的结果，那这个对象是线程安全的。 ​">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-07-26T08:08:21.872Z">
+<meta property="og:updated_time" content="2019-08-27T08:30:28.778Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="线性同余法">
-<meta name="twitter:description" content="线性同余法线性同余方法（LCG）是个产生伪随机数的方法。">
+<meta name="twitter:title" content="Java线程安全">
+<meta name="twitter:description" content="Java线程安全1.线程安全 当多个线程访问一个对象时，如果不用考虑这些线程在运行时环境下的调度和交替执行，也不需要进行额外的同步，或者在调用方进行任何其他的协调操作，调用这个对象的行为都可以获得正确的结果，那这个对象是线程安全的。 ​">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/07/26/线性同余法/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/08/27/Java线程安全/"/>
 
 
 
 
 
-  <title>线性同余法 | H14ugust's Blog</title>
+  <title>Java线程安全 | H14ugust's Blog</title>
   
 
 
@@ -233,7 +233,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/26/线性同余法/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/27/Java线程安全/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="H14ugust">
@@ -250,7 +250,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">线性同余法</h1>
+          <h1 class="post-title" itemprop="name headline">Java线程安全</h1>
         
 
         <div class="post-meta">
@@ -262,8 +262,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-26T15:52:16+08:00">
-                2019-07-26
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-27T13:43:14+08:00">
+                2019-08-27
               </time>
             
 
@@ -300,23 +300,63 @@
       
 
       
-        <h1 id="线性同余法"><a href="#线性同余法" class="headerlink" title="线性同余法"></a>线性同余法</h1><p><strong>线性同余方法</strong>（LCG）是个产生<em>伪随机数</em>的方法。</p>
-<a id="more"></a>
-<p>它根据递归公式：</p>
-<p>$N_(j+1)=(A\times{N_j}+B)(mod M)$</p>
-<p>其中$A,B,M$是产生器设定的常数。</p>
-<p>LCG的周期最大为$M$，但大部分情况都会少于$M$。要令LCG达到最大周期，应符合以下条件：</p>
-<ol>
-<li>$B.M$互质；</li>
-<li>$M$的所有质因数都能整除$A-1$;</li>
-<li>若$M$是4的倍数，$A-1$也是；</li>
-<li>$A,B,N_0$都比$M$小；</li>
-<li>$A,B$是正整数。</li>
-</ol>
-<p>用线性同余法产生随机数的特点是<strong>非常容易实现，生成速度快，但是弊端也很明显，32位的数周期最长只能到 $2^{32}$，达不到需要高质量随机数的应用如加密应用的要求</strong></p>
-<hr>
-<p>python生成器实现</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">LCG</span><span class="params">(N,B=<span class="number">7</span>,M=<span class="number">16</span>,A=<span class="number">5</span>)</span>:</span></span><br><span class="line">    print(<span class="string">"start generate ..."</span>)</span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">        <span class="keyword">yield</span> N</span><br><span class="line">        N = (A*N+B)%M</span><br><span class="line"></span><br><span class="line">g = LCG(N=<span class="number">1</span>)</span><br><span class="line">i=<span class="number">10</span></span><br><span class="line"><span class="keyword">while</span> i&gt;<span class="number">0</span>:</span><br><span class="line">    print(next(g))</span><br><span class="line">    i=i<span class="number">-1</span></span><br><span class="line"></span><br><span class="line"><span class="string">'''start generate ...</span></span><br><span class="line"><span class="string">    1</span></span><br><span class="line"><span class="string">    12</span></span><br><span class="line"><span class="string">    3</span></span><br><span class="line"><span class="string">    6</span></span><br><span class="line"><span class="string">    5</span></span><br><span class="line"><span class="string">    0</span></span><br><span class="line"><span class="string">    7</span></span><br><span class="line"><span class="string">    10</span></span><br><span class="line"><span class="string">    9</span></span><br><span class="line"><span class="string">    4'''</span></span><br></pre></td></tr></table></figure>
+        <h1 id="Java线程安全"><a href="#Java线程安全" class="headerlink" title="Java线程安全"></a>Java线程安全</h1><h2 id="1-线程安全"><a href="#1-线程安全" class="headerlink" title="1.线程安全"></a>1.线程安全</h2><blockquote>
+<p>当多个线程访问一个对象时，如果不用考虑这些线程在运行时环境下的调度和交替执行，也不需要进行额外的同步，或者在调用方进行任何其他的协调操作，调用这个对象的行为都可以获得正确的结果，那这个对象是线程安全的。</p>
+<p>​                                                                                                                              《Java Concurrency In Practice》</p>
+</blockquote>
+<p>安全等级</p>
+<ul>
+<li>不可变<ul>
+<li><code>final</code>不可变对象一定是线程安全的，如<code>String</code>、<code>enum</code>、<code>java.lang.Number</code>的部分子类，<code>BigInteger</code>等</li>
+</ul>
+</li>
+<li>绝对线程安全<ul>
+<li>通常难以实现</li>
+</ul>
+</li>
+<li>相对线程安全<ul>
+<li>通常意义上的线程安全，<code>Vector</code>、<code>HashTable</code>等。</li>
+</ul>
+</li>
+<li>线程兼容<ul>
+<li>本身不安全，可采取适当手段安全使用。<code>ArrayList</code>、<code>HashMap</code>等</li>
+</ul>
+</li>
+<li>线程对立<ul>
+<li>有害，应尽量避免，如<code>@Deprecated</code>的<code>suspend()</code>和<code>resume()</code>。</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-实现线程安全的方式"><a href="#2-实现线程安全的方式" class="headerlink" title="2.实现线程安全的方式"></a>2.实现线程安全的方式</h2><h3 id="2-1-互斥同步"><a href="#2-1-互斥同步" class="headerlink" title="2.1.互斥同步"></a>2.1.互斥同步</h3><p>悲观、阻塞同步</p>
+<ul>
+<li>临界区</li>
+<li>互斥量</li>
+<li>信号量</li>
+</ul>
+<h3 id="2-2-非阻塞同步"><a href="#2-2-非阻塞同步" class="headerlink" title="2.2.非阻塞同步"></a>2.2.非阻塞同步</h3><p>乐观，硬件层面提供支持，冲突检测</p>
+<ul>
+<li>测试并设置</li>
+<li>获取并增加</li>
+<li>交换</li>
+<li><strong>比较并交换-CAS</strong></li>
+<li>加载链接/条件存储</li>
+</ul>
+<p><strong>CAS</strong>由<code>sun.misc.Unasafe</code>类里的<code>compareAndSwapInt()</code>、<code>compareAndSwapLong()</code>等几个包装方法提供。</p>
+<p><code>Unsafe</code>不是提供给用户程序调用的类，<code>Unsafe.getUnsafe()</code>的代码限制了只有启动类加载器加载的Class才能访问它。</p>
+<h3 id="2-3-无同步方案"><a href="#2-3-无同步方案" class="headerlink" title="2.3. 无同步方案"></a>2.3. 无同步方案</h3><p>即无需同步手段也是线程安全的</p>
+<ul>
+<li>可重入代码<ul>
+<li>不依赖堆上的数据和公用资源系统、用到的状态量都由参数传入、不调用非可重入方法</li>
+<li>可重入性：一个方法相同输入必返回相同结果。</li>
+</ul>
+</li>
+<li>线程本地存储<code>Thread Local</code><ul>
+<li>将共享数据的可见范围限制在同一线程中</li>
+<li>消费队列的架构模式</li>
+<li>经典Web交互模型，一个请求对应一个线程，Thread-per-Request</li>
+</ul>
+</li>
+</ul>
 
       
     </div>
@@ -334,7 +374,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Algorithm/" rel="tag"># Algorithm</a>
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
           
         </div>
       
@@ -347,8 +387,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/07/26/equals()和==/" rel="next" title="equals()和==">
-                <i class="fa fa-chevron-left"></i> equals()和==
+              <a href="/2019/08/25/双亲委派模型/" rel="next" title="双亲委派模型">
+                <i class="fa fa-chevron-left"></i> 双亲委派模型
               </a>
             
           </div>
@@ -357,8 +397,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/08/22/Java重载及重写/" rel="prev" title="Java重载及重写">
-                Java重载及重写 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/08/28/锁/" rel="prev" title="锁">
+                锁 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -482,7 +522,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#线性同余法"><span class="nav-number">1.</span> <span class="nav-text">线性同余法</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java线程安全"><span class="nav-number">1.</span> <span class="nav-text">Java线程安全</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-线程安全"><span class="nav-number">1.1.</span> <span class="nav-text">1.线程安全</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-实现线程安全的方式"><span class="nav-number">1.2.</span> <span class="nav-text">2.实现线程安全的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-互斥同步"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1.互斥同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-非阻塞同步"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2.非阻塞同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-无同步方案"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3. 无同步方案</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
