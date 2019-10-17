@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="锁1. synchronized字节码表示synchronized在java中存在两种内建语义 其中同步代码块是通过使用 monitorenter 和monitorexit 实现的，而同步方法却是使用 ACC_SYNCHRONIZED 标记符隐式的实现，原理是通过方法调用指令检查该方法在常量池中是否包含 ACC_SYNCHRONIZED标记符  synchronized语句 synchronize">
+<meta name="description" content="锁1. synchronized字节码表示synchronized在java中存在两种内建语义 其中同步代码块是通过使用 monitorenter 和monitorexit 实现的，而同步方法却是使用 ACC_SYNCHRONIZED 标记符隐式的实现，原理是通过方法调用指令检查该方法在常量池中是否包含 ACC_SYNCHRONIZED标记符">
 <meta name="keywords" content="JVM">
 <meta property="og:type" content="article">
 <meta property="og:title" content="锁">
 <meta property="og:url" content="http://yoursite.com/2019/08/28/锁/index.html">
 <meta property="og:site_name" content="H14ugust&#39;s Blog">
-<meta property="og:description" content="锁1. synchronized字节码表示synchronized在java中存在两种内建语义 其中同步代码块是通过使用 monitorenter 和monitorexit 实现的，而同步方法却是使用 ACC_SYNCHRONIZED 标记符隐式的实现，原理是通过方法调用指令检查该方法在常量池中是否包含 ACC_SYNCHRONIZED标记符  synchronized语句 synchronize">
+<meta property="og:description" content="锁1. synchronized字节码表示synchronized在java中存在两种内建语义 其中同步代码块是通过使用 monitorenter 和monitorexit 实现的，而同步方法却是使用 ACC_SYNCHRONIZED 标记符隐式的实现，原理是通过方法调用指令检查该方法在常量池中是否包含 ACC_SYNCHRONIZED标记符">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-28T09:11:26.722Z">
+<meta property="og:updated_time" content="2019-10-17T05:26:55.791Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="锁">
-<meta name="twitter:description" content="锁1. synchronized字节码表示synchronized在java中存在两种内建语义 其中同步代码块是通过使用 monitorenter 和monitorexit 实现的，而同步方法却是使用 ACC_SYNCHRONIZED 标记符隐式的实现，原理是通过方法调用指令检查该方法在常量池中是否包含 ACC_SYNCHRONIZED标记符  synchronized语句 synchronize">
+<meta name="twitter:description" content="锁1. synchronized字节码表示synchronized在java中存在两种内建语义 其中同步代码块是通过使用 monitorenter 和monitorexit 实现的，而同步方法却是使用 ACC_SYNCHRONIZED 标记符隐式的实现，原理是通过方法调用指令检查该方法在常量池中是否包含 ACC_SYNCHRONIZED标记符">
 
 
 
@@ -302,6 +302,7 @@
       
         <h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><h2 id="1-synchronized字节码表示"><a href="#1-synchronized字节码表示" class="headerlink" title="1. synchronized字节码表示"></a>1. <code>synchronized</code>字节码表示</h2><p><code>synchronized</code>在java中存在两种内建语义</p>
 <p>其中同步代码块是通过使用 <code>monitorenter</code> 和<code>monitorexit</code> 实现的，而同步方法却是使用 <code>ACC_SYNCHRONIZED</code> 标记符隐式的实现，原理是通过方法调用指令检查该方法在常量池中是否包含 <code>ACC_SYNCHRONIZED</code>标记符</p>
+<a id="more"></a>
 <ul>
 <li><code>synchronized</code>语句<ul>
 <li><code>synchronized</code>语句被javac编译成字节码的时候，会在同步块的入口位置和退出位置分别插入<code>monitorenter</code>和<code>monitorexit</code>字节码指令</li>
