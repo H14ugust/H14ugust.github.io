@@ -87,14 +87,14 @@
 <meta property="og:site_name" content="H14ugust&#39;s Blog">
 <meta property="og:description" content="B树和B+树1.B树　　B树也是一种用于查找的平衡树，但是它不是二叉树。 　　B树的定义：B树（B-tree）是一种树状数据结构，能够用来存储排序后的数据。这种数据结构能够让查找数据、循序存取、插入数据及删除的动作，都在对数时间内完成。B树，概括来说是一个一般化的二叉查找树，可以拥有多于2个子节点。与自平衡二叉查找树不同，B-树为系统最优化大块数据的读和写操作。B-tree算法减少定位记录时所经历">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/10/27/B树和B+树/1.gif">
-<meta property="og:image" content="http://yoursite.com/2019/10/27/B树和B+树/2.gif">
+<meta property="og:image" content="http://yoursite.com/2019/10/27/B树和B+树/1.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/27/B树和B+树/2.png">
 <meta property="og:image" content="http://yoursite.com/2019/10/27/B树和B+树/3.png">
-<meta property="og:updated_time" content="2019-10-27T12:48:10.547Z">
+<meta property="og:updated_time" content="2019-10-27T14:37:47.087Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="B树和B+树">
 <meta name="twitter:description" content="B树和B+树1.B树　　B树也是一种用于查找的平衡树，但是它不是二叉树。 　　B树的定义：B树（B-tree）是一种树状数据结构，能够用来存储排序后的数据。这种数据结构能够让查找数据、循序存取、插入数据及删除的动作，都在对数时间内完成。B树，概括来说是一个一般化的二叉查找树，可以拥有多于2个子节点。与自平衡二叉查找树不同，B-树为系统最优化大块数据的读和写操作。B-tree算法减少定位记录时所经历">
-<meta name="twitter:image" content="http://yoursite.com/2019/10/27/B树和B+树/1.gif">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/27/B树和B+树/1.png">
 
 
 
@@ -317,7 +317,7 @@
 <p>　　6) 非叶子结点的关键字：K[1], K[2], …, K[M-1]；且K[i] &lt; K[i+1]；</p>
 <p>　　7) 非叶子结点的指针：P[1], P[2], …, P[M]；其中P[1]指向关键字小于K[1]的子树，P[M]指向关键字大于K[M-1]的子树，其它P[i]指向关键字属于(K[i-1], K[i])的子树；</p>
 <p>　　8) 所有叶子结点位于同一层；</p>
-  <img src="/2019/10/27/B树和B+树/1.gif">
+  <img src="/2019/10/27/B树和B+树/1.png">
 <p>B树相对于平衡二叉树的不同是，<strong>每个节点包含的关键字增多了 </strong>，特别是在B树应用到数据库中的时候，<strong>充分利用了磁盘块</strong>的原理（磁盘数据存储是采用块的形式存储的，每个块的大小为4K，每次IO进行数据读取时，同一个磁盘块的数据可以一次性读取出来）把节点大小限制和充分使用在磁盘快大小范围；把树的节点关键字增多后树的层级比原来的二叉树少了，减少数据查找的次数和复杂度;</p>
 <h2 id="2-B-树"><a href="#2-B-树" class="headerlink" title="2.B+树"></a>2.B+树</h2><p>　B+树是B树的变体，也是一种多路搜索树：</p>
 <p>　　1) 其定义基本与B-树相同，除了：</p>
@@ -331,7 +331,7 @@
 <p>　　2.不可能在非叶子结点命中；</p>
 <p>　　3.非叶子结点相当于是叶子结点的索引（稀疏索引），叶子结点相当于是存储（关键字）数据的数据层，<strong>叶子节点存数据</strong>；</p>
 <p>　　4.更适合文件索引系统。</p>
-  <img src="/2019/10/27/B树和B+树/2.gif">
+  <img src="/2019/10/27/B树和B+树/2.png">
   <img src="/2019/10/27/B树和B+树/3.png">
 <h2 id="3-B树和B-树的区别"><a href="#3-B树和B-树的区别" class="headerlink" title="3.B树和B+树的区别"></a>3.B树和B+树的区别</h2><p>1、B+<strong>树的层级更少</strong>：相较于B树B+每个<strong>非叶子</strong>节点存储的关键字数更多，<strong>树的层级更少所以查询数据更快</strong>；</p>
 <p>2、B+<strong>树查询速度更稳定</strong>：B+所有关键字数据地址都存在<strong>叶子</strong>节点上，所以<strong>每次查找的次数都相同</strong>所以查询速度要比B树更稳定;</p>
