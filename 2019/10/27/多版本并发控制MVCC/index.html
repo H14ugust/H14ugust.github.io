@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="MySQL," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="多版本并发控制MVCC1.多版本并发控制MVCC多版本控制: 指的是一种提高并发的技术。最早的数据库系统，只有读读之间可以并发，读写，写读，写写都要阻塞。引入多版本之后，只有写写之间相互阻塞，其他三种操作都可以并行，这样大幅度提高了InnoDB的并发度。在内部实现中，与Postgres在数据行上实现多版本不同，InnoDB是在undolog中实现的，通过undolog可以找回数据的历史版本。找回的">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多版本并发控制MVCC">
+<meta property="og:url" content="http://yoursite.com/2019/10/27/多版本并发控制MVCC/index.html">
+<meta property="og:site_name" content="H14ugust&#39;s Blog">
+<meta property="og:description" content="多版本并发控制MVCC1.多版本并发控制MVCC多版本控制: 指的是一种提高并发的技术。最早的数据库系统，只有读读之间可以并发，读写，写读，写写都要阻塞。引入多版本之后，只有写写之间相互阻塞，其他三种操作都可以并行，这样大幅度提高了InnoDB的并发度。在内部实现中，与Postgres在数据行上实现多版本不同，InnoDB是在undolog中实现的，通过undolog可以找回数据的历史版本。找回的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/10/27/多版本并发控制MVCC/2.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/27/多版本并发控制MVCC/1.png">
+<meta property="og:updated_time" content="2019-10-27T14:29:00.680Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="多版本并发控制MVCC">
+<meta name="twitter:description" content="多版本并发控制MVCC1.多版本并发控制MVCC多版本控制: 指的是一种提高并发的技术。最早的数据库系统，只有读读之间可以并发，读写，写读，写写都要阻塞。引入多版本之后，只有写写之间相互阻塞，其他三种操作都可以并行，这样大幅度提高了InnoDB的并发度。在内部实现中，与Postgres在数据行上实现多版本不同，InnoDB是在undolog中实现的，通过undolog可以找回数据的历史版本。找回的">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/27/多版本并发控制MVCC/2.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/10/27/多版本并发控制MVCC/"/>
+
+
+
+
+
+  <title>多版本并发控制MVCC | H14ugust's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">H14ugust's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/27/多版本并发控制MVCC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="H14ugust">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="H14ugust's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">多版本并发控制MVCC</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-10-27T21:44:40+08:00">
+                2019-10-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="多版本并发控制MVCC"><a href="#多版本并发控制MVCC" class="headerlink" title="多版本并发控制MVCC"></a>多版本并发控制MVCC</h1><h2 id="1-多版本并发控制MVCC"><a href="#1-多版本并发控制MVCC" class="headerlink" title="1.多版本并发控制MVCC"></a>1.多版本并发控制MVCC</h2><p><strong>多版本控制</strong>: 指的是一种提高并发的技术。最早的数据库系统，只有读读之间可以并发，读写，写读，写写都要阻塞。引入多版本之后，只有写写之间相互阻塞，其他三种操作都可以并行，这样大幅度提高了InnoDB的并发度。在内部实现中，与Postgres在数据行上实现多版本不同，InnoDB是在undolog中实现的，通过undolog可以找回数据的历史版本。找回的数据历史版本可以提供给用户读(按照隔离级别的定义，有些读请求只能看到比较老的数据版本)，也可以在回滚的时候覆盖数据页上的数据。在InnoDB内部中，会记录一个全局的活跃读写事务数组，其主要用来判断事务的可见性。</p>
+<a id="more"></a>
+<ul>
+<li>MVCC是被Mysql中 <code>事务型存储引擎InnoDB</code> 所支持的;</li>
+<li><strong>应对高并发事务, MVCC比单纯的加锁更高效</strong>;</li>
+<li>MVCC只在 <code>READ COMMITTED</code> 和 <code>REPEATABLE READ</code> 两个隔离级别下工作;</li>
+<li>MVCC可以使用 <code>乐观(optimistic)锁</code> 和 <code>悲观(pessimistic)锁</code>来实现;</li>
+<li>各数据库中MVCC实现并不统一</li>
+<li><p>但是书中提到 “InnoDB的MVCC是通过在每行记录后面保存<strong>两个隐藏的列</strong>来实现的”(网上也有很多此类观点), 但其实并不准确, 可以参考<a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-multi-versioning.html" target="_blank" rel="noopener">MySQL官方文档</a>, 可以看到, InnoDB存储引擎在数据库每行数据的后面添加了<strong>三个字段</strong>, 不是两个!!</p>
+<img src="/2019/10/27/多版本并发控制MVCC/2.png">
+</li>
+</ul>
+<h2 id="2-基本原理"><a href="#2-基本原理" class="headerlink" title="2.基本原理"></a>2.基本原理</h2><p>MVCC的实现，<strong>通过保存数据在某个时间点的快照来实现的</strong>。这意味着一个事务无论运行多长时间，在同一个事务里能够看到数据一致的视图。根据事务开始的时间不同，同时也意味着在同一个时刻不同事务看到的相同表里的数据可能是不同的。</p>
+<h2 id="3-基本特征"><a href="#3-基本特征" class="headerlink" title="3.基本特征"></a>3.基本特征</h2><ul>
+<li>每行数据都存在一个版本，每次数据更新时都更新该版本。</li>
+<li>修改时Copy出当前版本随意修改，各个事务之间无干扰。</li>
+<li>保存时比较版本号，如果成功（commit），则覆盖原记录；失败则放弃copy（rollback）</li>
+</ul>
+<p>而InnoDB实现MVCC的方式是:</p>
+<ul>
+<li>事务以排他锁的形式修改原始数据</li>
+<li>把修改前的数据存放于undo log，通过回滚指针与主数据关联</li>
+<li>修改成功（commit）啥都不做，失败则恢复undo log中的数据（rollback）</li>
+</ul>
+<h2 id="4-数据库行结构"><a href="#4-数据库行结构" class="headerlink" title="4.数据库行结构"></a>4.数据库行结构</h2><p>数据库中的表除了自己建表时候的字段，还隐藏了三个隐藏字段。</p>
+<p>InnoDB的内部实现中为每一行数据增加了三个隐藏列用于实现MVCC。</p>
+  <img src="/2019/10/27/多版本并发控制MVCC/1.png">
+<h2 id="5-Read-View"><a href="#5-Read-View" class="headerlink" title="5. Read View"></a>5. Read View</h2><p><strong>在innodb 中每个SQL语句执行前都会得到一个read_view副本</strong>，该结副本主要保存了当前数据库系统中<strong>正处于活跃（没有commit）事务的ID号</strong>，其实就是说这个副本中保存的是系统中当前不应该被本事务看到的<strong>其他活跃事务id列表</strong>。</p>
+<p>readView几个重要属性：</p>
+<ul>
+<li>trx_ids：当前系统活跃事务版本号集合。</li>
+<li>low_limit_id:创建read view 时当前系统活跃的事务最大版本号。</li>
+<li>up_limit_id：创建read view 时当前系统活跃的事务最小版本号。</li>
+<li>creator_trx_id：创建当前read view的事务版本号。</li>
+</ul>
+<p>Read view 返回数据条件：</p>
+<ul>
+<li>数据事务ID小于up_limit_id（活跃事务的最小ID），则说明该数据是在所有活跃事务开启之前就已经存在的,可以显示。</li>
+<li>数据事务ID大于low_limit_id（活跃事务的最大ID），则说明该数据是在所有活跃事务开始之后才创建的，所以数据不予显示。</li>
+<li>数据事务ID 大于up_limit_id 并且小于low_limit_id 时，用数据事务ID 与trx_ids 集合中的事务ID进行匹配，如果事务ID不存在于活跃事务ID集合，或者数据事务ID等于creator_trx_id（这说明该数据就是当前事务修改的），满足上面的条件则可以显示。</li>
+<li>当数据的事务ID不满足read view条件时候，就会从undo log里面获取数据的历史版本，然后数据历史版本事务号回头再来和read view 条件匹配 ，直到找到一条满足条件的历史数据，或者找不到则返回空结果；</li>
+</ul>
+<h2 id="6-undo-redo-log"><a href="#6-undo-redo-log" class="headerlink" title="6.undo/redo log"></a>6.undo/redo log</h2><ul>
+<li><p>undo log是回滚日志，其作用：提供回滚和多个行版本控制(MVCC)。</p>
+<p>undo log用来回滚行记录到某个版本。undo log一般是逻辑日志，根据每行记录进行记录。</p>
+</li>
+<li><p>redo log是前滚日志，提供前滚操作。</p>
+<p>redo log通常是物理日志，记录的是数据页的物理修改，而不是某一行或某几行修改成怎样怎样，它用来恢复提交后的物理数据页(恢复数据页，且只能恢复到最后一次提交的位置)。</p>
+</li>
+</ul>
+<p><strong>redo log 与 undo log的 主要区别：</strong><br>● undo日志：在恢复时取消未完成的事务的影响，忽略已提交事务。<br>   Redo日志：忽略未完成的事务，重做已提交事务的改变。<br>● undo日志：先将修改后的数据写到磁盘——写<code>COMMIT T</code>到磁盘。<br>   Redo日志：先写<code>COMMIT T</code>到磁盘——将修改后的数据写到磁盘。<br>● 当遵循Undo日志的U1和U2规则，恢复时我们所需要的是数据库的旧值。<br>   使用Redo日志恢复时，我们需要的是新值。 </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/27/数据库优化/" rel="next" title="数据库优化">
+                <i class="fa fa-chevron-left"></i> 数据库优化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">H14ugust</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">38</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#多版本并发控制MVCC"><span class="nav-number">1.</span> <span class="nav-text">多版本并发控制MVCC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-多版本并发控制MVCC"><span class="nav-number">1.1.</span> <span class="nav-text">1.多版本并发控制MVCC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-基本原理"><span class="nav-number">1.2.</span> <span class="nav-text">2.基本原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-基本特征"><span class="nav-number">1.3.</span> <span class="nav-text">3.基本特征</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-数据库行结构"><span class="nav-number">1.4.</span> <span class="nav-text">4.数据库行结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-Read-View"><span class="nav-number">1.5.</span> <span class="nav-text">5. Read View</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-undo-redo-log"><span class="nav-number">1.6.</span> <span class="nav-text">6.undo/redo log</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">H14ugust</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"left","width":250,"height":500},"mobile":{"show":true}});</script></body>
+</html>
