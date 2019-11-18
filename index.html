@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="zh-CN">
+<html class="theme-next pisces use-motion" lang="zh-CN">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -93,7 +93,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Muse',
+    scheme: 'Pisces',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
@@ -215,6 +215,333 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/11/集成方法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="H14ugust">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="H14ugust's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/11/集成方法/" itemprop="url">集成方法</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-11T21:43:49+08:00">
+                2019-11-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="集成方法"><a href="#集成方法" class="headerlink" title="集成方法"></a>集成方法</h1><h2 id="1-Bagging"><a href="#1-Bagging" class="headerlink" title="1.Bagging"></a>1.Bagging</h2><ol>
+<li>从原始样本中<strong>有放回（Bootstraping）</strong>地抽取n个训练样本，抽取k次，得到k个互相独立训练集</li>
+<li>使用每一个训练集单独训练一个模型，k个训练集共得到k个模型</li>
+<li><ul>
+<li>分类：通过多数投票综合k个模型</li>
+<li>回归：通过平均k个预测值综合</li>
+</ul>
+</li>
+</ol>
+<h2 id="2-Boosting"><a href="#2-Boosting" class="headerlink" title="2.Boosting"></a>2.Boosting</h2><p>赋予训练集样本以1/N的初始权值，训练出一个初始弱分类器，根据弱分类器的<strong>学习误差</strong>来更新训练样本的权重，使学习误差率高的获得更高权重，误差率较低的获得较低的权重。利用<strong>调整过权重</strong>的训练集来继续训练下一个分类器，重复直至达到指定次数T。最终通过集合策略集合T个分类器。</p>
+<p><strong>两个核心问题</strong></p>
+<ul>
+<li><strong>在每一轮中如何改变训练集样本的权重</strong></li>
+<li><strong>如何综合多个弱分类器</strong></li>
+</ul>
+<h3 id="2-1-AdaBoost"><a href="#2-1-AdaBoost" class="headerlink" title="2.1 AdaBoost"></a>2.1 AdaBoost</h3><ul>
+<li>提高上一轮训练中被分错的样本的权重，降低分对的样本的权重</li>
+<li><strong>加权多数表决</strong>进行综合决策</li>
+</ul>
+<h2 id="3-区别"><a href="#3-区别" class="headerlink" title="3.区别"></a>3.区别</h2><ul>
+<li>样本选择上：</li>
+</ul>
+<p>Bagging：训练集是在原始集中有放回选取的，从原始集中选出的各轮训练集之间是独立的。</p>
+<p>Boosting：每一轮的训练集不变，只是训练集中每个样例在分类器中的权重发生变化。而权值是根据上一轮的分类结果进行调整。</p>
+<ul>
+<li>样例权重：</li>
+</ul>
+<p>Bagging：使用均匀取样，每个样例的权重相等</p>
+<p>Boosting：根据错误率不断调整样例的权值，错误率越大则权重越大。</p>
+<ul>
+<li>预测函数：</li>
+</ul>
+<p>Bagging：所有预测函数的权重相等。</p>
+<p>Boosting：每个弱分类器都有相应的权重，对于分类误差小的分类器会有更大的权重。</p>
+<ul>
+<li>并行计算：</li>
+</ul>
+<p>Bagging：各个预测函数可以并行生成</p>
+<p>Boosting：各个预测函数只能顺序生成，因为后一个模型参数需要前一轮模型的结果。</p>
+<h2 id="4-具体方法"><a href="#4-具体方法" class="headerlink" title="4.具体方法"></a>4.具体方法</h2><ul>
+<li><p>Bagging + 决策树 = 随机森林</p>
+</li>
+<li><p>AdaBoost + 决策树 = 提升树</p>
+</li>
+<li><p>Gradient Boosting + 决策树 = GBDT</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/11/常用优化算法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="H14ugust">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="H14ugust's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/11/常用优化算法/" itemprop="url">常用优化算法</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-11T13:50:36+08:00">
+                2019-11-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="常用优化算法"><a href="#常用优化算法" class="headerlink" title="常用优化算法"></a>常用优化算法</h1><h2 id="1-SGD"><a href="#1-SGD" class="headerlink" title="1.SGD"></a>1.SGD</h2><ul>
+<li>随机梯度下降法，每次迭代计算数据集中的batch的梯度，进而更新参数</li>
+<li>收敛速度快，可实现在线更新，能跳出局部最优</li>
+<li><p>易困在鞍点</p>
+</li>
+<li><p>SGD</p>
+<ul>
+<li>单个样本</li>
+</ul>
+</li>
+<li>BGD<ul>
+<li>全样本</li>
+</ul>
+</li>
+<li>mini-BGD<ul>
+<li>小批量数据</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-Momentum"><a href="#2-Momentum" class="headerlink" title="2. Momentum"></a>2. Momentum</h2><ul>
+<li>模拟动量，前几次迭代的梯度也会参与到本次迭代中</li>
+<li>取前几次迭代的<strong>平均</strong> EWMA</li>
+<li>若当前梯度的方向与历史梯度一致（表明当前样本不太可能为异常点），则会增强这个方向的梯度，若当前梯度与历史梯方向不一致，则梯度会衰减</li>
+</ul>
+<h2 id="3-Adagrad"><a href="#3-Adagrad" class="headerlink" title="3.Adagrad"></a>3.Adagrad</h2><ul>
+<li>自适应梯度算法,设置一个全局的学习率，能在训练中自动调整lr，</li>
+<li>积累平方梯度，r&lt;-g*g</li>
+<li>全局学习率逐元素应用除（和求平方根）update = lr/sqrt(r)*g</li>
+</ul>
+<h2 id="4-RMSprop"><a href="#4-RMSprop" class="headerlink" title="4.RMSprop"></a>4.RMSprop</h2><ul>
+<li>root mean square propagation</li>
+<li>微分平方加权平均数</li>
+<li>Adagrad会累加之前所有的梯度平方，RMProp仅仅是计算对应的平均值．可以缓解Adagrad算法学习率下降较快的问题．</li>
+</ul>
+<h2 id="5-Adam"><a href="#5-Adam" class="headerlink" title="5.Adam"></a>5.Adam</h2><ul>
+<li>(adaptive moment estimation)是对RMSProp优化器的更新.利用梯度的一阶矩估计和二阶矩估计动态调整每个参数的学习率</li>
+<li>结合了momentum和RMSprop</li>
+<li>多了EWMA的偏差修正过程</li>
+</ul>
+<blockquote>
+<p><a href="https://blog.csdn.net/willduan1/article/details/78070086" target="_blank" rel="noopener">https://blog.csdn.net/willduan1/article/details/78070086</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -1234,254 +1561,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/27/数据库优化/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="H14ugust">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="H14ugust's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/27/数据库优化/" itemprop="url">数据库优化</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-10-27T21:36:13+08:00">
-                2019-10-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="数据库优化"><a href="#数据库优化" class="headerlink" title="数据库优化"></a>数据库优化</h1><h2 id="1-分区"><a href="#1-分区" class="headerlink" title="1.分区"></a>1.分区</h2><p>分区一句话就是：把一张表按照某种规则（range/list/hash/key等）分成多个区域（页/文件）保存</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/10/27/数据库优化/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/27/查询优化/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="H14ugust">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="H14ugust's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/27/查询优化/" itemprop="url">查询优化</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-10-27T21:30:04+08:00">
-                2019-10-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="查询优化"><a href="#查询优化" class="headerlink" title="查询优化"></a>查询优化</h1><h2 id="1-使用Explain-进行分析"><a href="#1-使用Explain-进行分析" class="headerlink" title="1.使用Explain 进行分析"></a>1.使用<code>Explain</code> 进行分析</h2><p><code>Explain</code> 用来分析 SELECT 查询语句，开发人员可以通过分析 Explain 结果来优化查询语句。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/10/27/查询优化/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1532,7 +1611,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-count">47</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1544,10 +1623,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">9</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">tags</span>
-                
+                </a>
               </div>
             
 
@@ -1600,7 +1679,7 @@
 
 
 
-  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
 
 
 
@@ -1699,6 +1778,13 @@
 
   
   
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
 
   
 
