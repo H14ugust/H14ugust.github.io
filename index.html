@@ -1013,7 +1013,13 @@
 
       
         
-          <h1 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h1><p>垃圾收集主要是针对<strong>堆</strong>和<strong>方法区</strong>进行。<strong>程序计数器、虚拟机栈和本地方法栈这三个区域属于线程私有的，只存在于线程的生命周期内，线程结束之后就会消失，因此不需要对这三个区域进行垃圾回收</strong>。</p>
+          <h1 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h1><p>在java语言中，判断一块内存空间是否符合GC的标准只有两个：</p>
+<ul>
+<li>一个对象被赋值为<code>null</code>且接下来从未被使用</li>
+<li>一个对象被重新赋值，重新分配了内存空间</li>
+</ul>
+<p>此外，符合GC标准并不意味着这块空间就一定会被回收</p>
+<p>垃圾收集主要是针对<strong>堆</strong>和<strong>方法区</strong>进行。<strong>程序计数器、虚拟机栈和本地方法栈这三个区域属于线程私有的，只存在于线程的生命周期内，线程结束之后就会消失，因此不需要对这三个区域进行垃圾回收</strong>。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/10/29/垃圾回收/#more" rel="contents">
@@ -1624,7 +1630,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -1661,7 +1667,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

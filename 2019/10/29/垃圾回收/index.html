@@ -79,21 +79,21 @@
 
 
 
-<meta name="description" content="垃圾回收垃圾收集主要是针对堆和方法区进行。程序计数器、虚拟机栈和本地方法栈这三个区域属于线程私有的，只存在于线程的生命周期内，线程结束之后就会消失，因此不需要对这三个区域进行垃圾回收。">
+<meta name="description" content="垃圾回收在java语言中，判断一块内存空间是否符合GC的标准只有两个：  一个对象被赋值为null且接下来从未被使用 一个对象被重新赋值，重新分配了内存空间  此外，符合GC标准并不意味着这块空间就一定会被回收 垃圾收集主要是针对堆和方法区进行。程序计数器、虚拟机栈和本地方法栈这三个区域属于线程私有的，只存在于线程的生命周期内，线程结束之后就会消失，因此不需要对这三个区域进行垃圾回收。">
 <meta name="keywords" content="JVM">
 <meta property="og:type" content="article">
 <meta property="og:title" content="垃圾回收">
 <meta property="og:url" content="http://yoursite.com/2019/10/29/垃圾回收/index.html">
 <meta property="og:site_name" content="H14ugust&#39;s Blog">
-<meta property="og:description" content="垃圾回收垃圾收集主要是针对堆和方法区进行。程序计数器、虚拟机栈和本地方法栈这三个区域属于线程私有的，只存在于线程的生命周期内，线程结束之后就会消失，因此不需要对这三个区域进行垃圾回收。">
+<meta property="og:description" content="垃圾回收在java语言中，判断一块内存空间是否符合GC的标准只有两个：  一个对象被赋值为null且接下来从未被使用 一个对象被重新赋值，重新分配了内存空间  此外，符合GC标准并不意味着这块空间就一定会被回收 垃圾收集主要是针对堆和方法区进行。程序计数器、虚拟机栈和本地方法栈这三个区域属于线程私有的，只存在于线程的生命周期内，线程结束之后就会消失，因此不需要对这三个区域进行垃圾回收。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/10/29/垃圾回收/1.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/10/29/垃圾回收/2.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/10/29/垃圾回收/3.jpg">
-<meta property="og:updated_time" content="2019-10-29T07:14:09.378Z">
+<meta property="og:updated_time" content="2019-11-22T08:06:48.995Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="垃圾回收">
-<meta name="twitter:description" content="垃圾回收垃圾收集主要是针对堆和方法区进行。程序计数器、虚拟机栈和本地方法栈这三个区域属于线程私有的，只存在于线程的生命周期内，线程结束之后就会消失，因此不需要对这三个区域进行垃圾回收。">
+<meta name="twitter:description" content="垃圾回收在java语言中，判断一块内存空间是否符合GC的标准只有两个：  一个对象被赋值为null且接下来从未被使用 一个对象被重新赋值，重新分配了内存空间  此外，符合GC标准并不意味着这块空间就一定会被回收 垃圾收集主要是针对堆和方法区进行。程序计数器、虚拟机栈和本地方法栈这三个区域属于线程私有的，只存在于线程的生命周期内，线程结束之后就会消失，因此不需要对这三个区域进行垃圾回收。">
 <meta name="twitter:image" content="http://yoursite.com/2019/10/29/垃圾回收/1.jpg">
 
 
@@ -304,7 +304,13 @@
       
 
       
-        <h1 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h1><p>垃圾收集主要是针对<strong>堆</strong>和<strong>方法区</strong>进行。<strong>程序计数器、虚拟机栈和本地方法栈这三个区域属于线程私有的，只存在于线程的生命周期内，线程结束之后就会消失，因此不需要对这三个区域进行垃圾回收</strong>。</p>
+        <h1 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h1><p>在java语言中，判断一块内存空间是否符合GC的标准只有两个：</p>
+<ul>
+<li>一个对象被赋值为<code>null</code>且接下来从未被使用</li>
+<li>一个对象被重新赋值，重新分配了内存空间</li>
+</ul>
+<p>此外，符合GC标准并不意味着这块空间就一定会被回收</p>
+<p>垃圾收集主要是针对<strong>堆</strong>和<strong>方法区</strong>进行。<strong>程序计数器、虚拟机栈和本地方法栈这三个区域属于线程私有的，只存在于线程的生命周期内，线程结束之后就会消失，因此不需要对这三个区域进行垃圾回收</strong>。</p>
 <a id="more"></a>
 <h2 id="1-堆内存组成"><a href="#1-堆内存组成" class="headerlink" title="1.堆内存组成"></a>1.堆内存组成</h2><p>目前主流的垃圾收集器都会采用<strong>分代回收算法</strong>，因此需要将堆内存分为新生代和老年代，这样我们就可以根据各个年代的特点选择合适的垃圾收集算法。</p>
 <ul>
@@ -514,7 +520,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -567,7 +573,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
